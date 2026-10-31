@@ -9,6 +9,7 @@ export function ForecastChart({
   comparison,
   actual = false,
   compact = false,
+  historical = false,
 }: {
   points: Point[];
   selected?: number;
@@ -16,6 +17,7 @@ export function ForecastChart({
   comparison?: Point[];
   actual?: boolean;
   compact?: boolean;
+  historical?: boolean;
 }) {
   const id = useId().replace(/:/g, "");
   const W = 860,
@@ -49,7 +51,11 @@ export function ForecastChart({
       <svg
         viewBox={`0 0 ${W} ${H}`}
         role="img"
-        aria-label="72-hour PM2.5 forecast. Green line is the model prediction; shading is the nominal 80 percent uncertainty band."
+        aria-label={
+          historical
+            ? "72-hour PM2.5 outlook. Green is the historical median; shading is historical 10th to 90th percentile spread, not a calibrated interval."
+            : "72-hour PM2.5 forecast. Green line is the model prediction; shading is the nominal 80 percent uncertainty band."
+        }
       >
         <defs>
           <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">

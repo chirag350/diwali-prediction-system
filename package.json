@@ -12,7 +12,9 @@
     "data:snapshots": "bun scripts/build-snapshots.ts",
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test",
-    "format": "prettier --write app components lib server scripts tests playwright.config.ts"
+    "format": "prettier --write app components lib server scripts tests playwright.config.ts",
+    "data:outlook": "bun scripts/build-outlook.ts",
+    "data:build": "bun run data:snapshots && bun run data:outlook"
   },
   "dependencies": {
     "h3-js": "^4.5.0",

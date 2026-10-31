@@ -10,6 +10,12 @@ export type Point = {
   aqi: number | null;
 };
 export type Station = {
+  outlook?: {
+    sourceYears: number[];
+    minimumHourlySamples: number;
+    latestObservedAt: string;
+    latestObservedPm: number;
+  };
   id: string;
   name: string;
   fullName: string;
@@ -30,6 +36,14 @@ export type Station = {
   };
 };
 export type Snapshot = {
+  kind?: "outlook";
+  outlook?: {
+    method: string;
+    sourceYears: number[];
+    minimumYears: number;
+    interval: string;
+    limitations: string;
+  };
   id: string;
   title: string;
   year: number;

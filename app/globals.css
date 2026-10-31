@@ -159,7 +159,7 @@ kbd {
 }
 .eyebrow {
   display: block;
-  font-size: 9px;
+  font-size: 10px;
   line-height: 1.5;
   font-weight: 600;
   letter-spacing: 1.45px;
@@ -178,7 +178,7 @@ kbd {
   align-items: center;
   justify-content: center;
   gap: 5px;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.7px;
   padding: 5px 7px;
@@ -331,7 +331,7 @@ kbd {
   box-shadow: 0 1px 3px #0000000b;
 }
 .segmented.small button {
-  font-size: 9px;
+  font-size: 10px;
   padding: 6px 9px;
 }
 .skip-link {
@@ -380,7 +380,7 @@ kbd {
 .brand-ai {
   display: block;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 7px;
+  font-size: 10px;
   letter-spacing: 2.1px;
   font-weight: 500;
   margin-top: 4px;
@@ -399,14 +399,14 @@ kbd {
 }
 .sidebar-search kbd {
   margin-left: auto;
-  font-size: 8px;
+  font-size: 10px;
   padding: 1px 3px;
 }
 .nav-group {
   margin-bottom: 25px;
 }
 .nav-group-label {
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 1.2px;
   color: var(--muted);
   padding-left: 14px;
@@ -436,7 +436,7 @@ kbd {
   font-weight: 600;
 }
 .nav-link small {
-  font-size: 6px;
+  font-size: 10px;
   border: 1px solid var(--line);
   border-radius: 3px;
   padding: 3px 4px;
@@ -484,7 +484,7 @@ kbd {
 .city-mini div > span {
   display: block;
   color: var(--muted);
-  font-size: 8px;
+  font-size: 10px;
   margin-top: 4px;
 }
 .city-mini > .tiny-dot {
@@ -506,7 +506,7 @@ kbd {
   display: flex;
   gap: 5px;
   align-items: center;
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 0.05px;
   color: var(--muted);
   border-top: 1px solid var(--line);
@@ -533,7 +533,7 @@ kbd {
   font-size: 10px;
 }
 .breadcrumb > span:first-of-type {
-  font-size: 8px;
+  font-size: 10px;
   color: var(--muted);
   letter-spacing: 1px;
 }
@@ -556,7 +556,7 @@ kbd {
   font-size: 14px;
 }
 .locale-button > span {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--muted);
 }
 .notification-button {
@@ -602,7 +602,7 @@ kbd {
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 1.6px;
   color: var(--muted);
   margin: 1px 0 12px;
@@ -688,19 +688,19 @@ kbd {
   color: #a2ac94;
 }
 .context-actions > span {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--muted);
 }
 .context-actions select {
   padding: 5px 8px;
   min-height: 26px;
-  font-size: 9px;
+  font-size: 10px;
   border: 1px solid #d8dfcb;
   background: var(--surface);
   border-radius: 4px;
 }
 .context-bar .badge {
-  font-size: 7px;
+  font-size: 10px;
 }
 .overview-grid {
   display: grid;
@@ -745,7 +745,7 @@ kbd {
   letter-spacing: -0.1px;
 }
 .insight-card p {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--muted);
   margin-top: 4px;
 }
@@ -780,7 +780,7 @@ kbd {
   padding: 21px 22px 19px;
 }
 .map-card-header .eyebrow {
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 1.3px;
   margin-bottom: 6px;
 }
@@ -819,7 +819,7 @@ kbd {
   position: absolute;
   z-index: 3;
   pointer-events: none;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 1.7px;
   color: #5a685a;
@@ -879,7 +879,7 @@ kbd {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 8px;
+  font-size: 10px;
   padding: 7px 9px;
   border: 1px solid #d6ddcb;
   background: #fffef7ed;
@@ -941,7 +941,7 @@ kbd {
 }
 .map-selected span:not(.pulse-dot) {
   display: block;
-  font-size: 7px;
+  font-size: 10px;
   color: #86907c;
   margin-top: 4px;
 }
@@ -972,7 +972,7 @@ kbd {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 9px;
+  font-size: 10px;
   color: #5e7556;
   background: #fffef6d9;
   border: 1px solid #d7dfcd;
@@ -994,14 +994,14 @@ kbd {
 .legend-title {
   display: flex;
   justify-content: space-between;
-  font-size: 8px;
+  font-size: 10px;
   margin-bottom: 8px;
 }
 .legend-title strong {
   font-weight: 600;
 }
 .legend-title > span {
-  font-size: 7px;
+  font-size: 10px;
   color: #8a927e;
 }
 .legend-gradient {
@@ -1020,7 +1020,7 @@ kbd {
 .legend-values {
   display: flex;
   justify-content: space-between;
-  font-size: 7px;
+  font-size: 10px;
   color: #89917d;
   margin-top: 5px;
 }
@@ -1035,7 +1035,7 @@ kbd {
   z-index: 4;
   padding: 7px 10px;
   background: #fafbf1c9;
-  font-size: 7px;
+  font-size: 10px;
   color: #7b8771;
   pointer-events: auto;
 }
@@ -1063,7 +1063,7 @@ kbd {
   flex-shrink: 0;
 }
 .speed-button {
-  font-size: 8px;
+  font-size: 10px;
   color: var(--muted);
   border: 1px solid var(--line);
   padding: 4px 5px;
@@ -1086,16 +1086,16 @@ kbd {
   align-items: center;
   justify-content: space-between;
   gap: 7px;
-  font-size: 7px;
+  font-size: 10px;
   color: var(--muted);
 }
 .timeline-range strong {
-  font-size: 8px;
+  font-size: 10px;
   color: var(--green);
   font-weight: 500;
 }
 .timeline-range strong > span {
-  font-size: 7px;
+  font-size: 10px;
   color: var(--muted);
   margin-left: 3px;
 }
@@ -1155,7 +1155,7 @@ kbd {
 .phase-tabs small {
   display: block;
   margin-top: 3px;
-  font-size: 8px;
+  font-size: 10px;
   opacity: 0.7;
 }
 .lite-list {
@@ -1182,7 +1182,7 @@ kbd {
   margin-bottom: 6px;
 }
 .air-card-top .eyebrow {
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 1.3px;
 }
 .air-card-top .icon-button {
@@ -1196,7 +1196,7 @@ kbd {
   letter-spacing: -0.7px;
 }
 .air-time {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--muted);
   display: flex;
   align-items: center;
@@ -1204,7 +1204,7 @@ kbd {
   margin-top: 8px;
 }
 .air-time .badge {
-  font-size: 6px;
+  font-size: 10px;
   padding: 4px 5px;
   letter-spacing: 0.7px;
 }
@@ -1229,7 +1229,7 @@ kbd {
   color: var(--muted);
 }
 .reading-label {
-  font-size: 8px;
+  font-size: 10px;
   color: var(--muted);
   display: block;
   margin-top: 9px;
@@ -1277,7 +1277,7 @@ kbd {
 }
 .air-status > span:last-child {
   margin-left: auto;
-  font-size: 7px;
+  font-size: 10px;
   color: var(--muted);
 }
 .concentration-scale {
@@ -1310,7 +1310,7 @@ kbd {
   justify-content: space-between;
   padding: 13px 0 16px;
   border-bottom: 1px solid var(--line);
-  font-size: 9px;
+  font-size: 10px;
   color: var(--muted);
 }
 .interval-row > span {
@@ -1324,7 +1324,7 @@ kbd {
   font-weight: 500;
 }
 .interval-row strong > span {
-  font-size: 8px;
+  font-size: 10px;
   color: var(--muted);
 }
 .info-circle {
@@ -1334,7 +1334,7 @@ kbd {
   width: 11px;
   border: 1px solid var(--line);
   font-family: Georgia, serif;
-  font-size: 8px;
+  font-size: 10px;
   border-radius: 100%;
   cursor: help;
 }
@@ -1348,7 +1348,7 @@ kbd {
   color: #8b987f;
 }
 .air-summary-row div > span {
-  font-size: 8px;
+  font-size: 10px;
   color: var(--muted);
   display: block;
   margin-bottom: 5px;
@@ -1360,13 +1360,13 @@ kbd {
   line-height: 1.5;
 }
 .air-summary-row small {
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 400;
   color: var(--muted);
 }
 .air-card > .primary-button {
   margin-top: 21px;
-  font-size: 9px;
+  font-size: 10px;
   min-height: 33px;
   padding: 8px 10px;
 }
@@ -1374,7 +1374,7 @@ kbd {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 6px;
+  font-size: 10px;
   color: var(--muted);
   margin-top: 12px;
 }
@@ -1399,7 +1399,7 @@ kbd {
   align-items: center;
   gap: 7px;
   color: var(--muted);
-  font-size: 8px;
+  font-size: 10px;
   margin-bottom: 6px;
 }
 .weather-mini > strong {
@@ -1427,7 +1427,7 @@ kbd {
   display: flex;
   gap: 12px;
   align-items: center;
-  font-size: 8px;
+  font-size: 10px;
   color: var(--muted);
   flex-wrap: wrap;
 }
@@ -1469,7 +1469,7 @@ kbd {
 .chart-label {
   font-family: Arial, Helvetica, sans-serif;
   fill: var(--muted);
-  font-size: 9px;
+  font-size: 10px;
 }
 .chart-footer {
   padding: 11px 24px 15px;
@@ -1477,7 +1477,7 @@ kbd {
   justify-content: space-between;
   gap: 10px;
   color: var(--muted);
-  font-size: 8px;
+  font-size: 10px;
   border-top: 1px solid var(--line);
   margin-top: 5px;
 }
@@ -1489,7 +1489,7 @@ kbd {
 }
 .chart-footer button {
   color: var(--green);
-  font-size: 8px;
+  font-size: 10px;
 }
 .window-card {
   border: 1px solid #dce3cf;
@@ -1507,7 +1507,7 @@ kbd {
   border-color: var(--line);
 }
 .window-card .eyebrow {
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 1.2px;
   margin-top: 53px;
 }
@@ -1519,7 +1519,7 @@ kbd {
   margin-top: 9px;
 }
 .window-card p {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--muted);
   margin-top: 8px;
   max-width: 205px;
@@ -1562,7 +1562,7 @@ kbd {
   color: #a3ad8e;
 }
 .window-date {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--muted);
   margin-top: 6px;
 }
@@ -1570,7 +1570,7 @@ kbd {
   margin-top: 19px;
 }
 .window-fine {
-  font-size: 7px;
+  font-size: 10px;
   color: var(--muted);
   margin-top: 15px;
 }
@@ -1613,7 +1613,7 @@ kbd {
 }
 .weather-strip span {
   color: var(--muted);
-  font-size: 8px;
+  font-size: 10px;
 }
 .weather-strip strong {
   font-size: 18px;
@@ -1649,7 +1649,7 @@ kbd {
   border-top: 1px solid var(--line);
   color: var(--muted);
   padding: 14px 24px;
-  font-size: 9px;
+  font-size: 10px;
   line-height: 1.7;
 }
 .advice-foot a {
@@ -1784,7 +1784,7 @@ kbd {
   margin-bottom: 24px;
 }
 .note-number {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--muted);
   padding-top: 2px;
   letter-spacing: 0.7px;
@@ -1842,12 +1842,12 @@ kbd {
 .slider-extents {
   display: flex;
   justify-content: space-between;
-  font-size: 8px;
+  font-size: 10px;
   color: var(--muted);
   margin-top: 9px;
 }
 .warning-text {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--orange);
   line-height: 1.5;
   display: block;
@@ -1864,11 +1864,11 @@ kbd {
   font-size: 10px;
 }
 .unavailable-control p {
-  font-size: 9px;
+  font-size: 10px;
   margin-top: 6px;
 }
 .unavailable-control .badge {
-  font-size: 6px;
+  font-size: 10px;
   margin-left: auto;
 }
 .lab-buttons {
@@ -1904,7 +1904,7 @@ kbd {
   border: 0;
 }
 .scenario-stats .eyebrow {
-  font-size: 7px;
+  font-size: 10px;
   letter-spacing: 0.8px;
 }
 .scenario-stats strong {
@@ -1915,7 +1915,7 @@ kbd {
   margin-top: 10px;
 }
 .scenario-stats small {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--muted);
   letter-spacing: 0;
 }
@@ -1923,7 +1923,7 @@ kbd {
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  font-size: 9px;
+  font-size: 10px;
   color: var(--muted);
   padding: 2px 3px;
 }
@@ -2031,7 +2031,7 @@ kbd {
   margin-right: 45px;
 }
 .report-stamp > span:first-child {
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 1.7px;
 }
 .report-stamp strong {
@@ -2042,7 +2042,7 @@ kbd {
   line-height: 1;
 }
 .report-stamp > span:last-child {
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.5px;
 }
 .metric-grid {
@@ -2062,7 +2062,7 @@ kbd {
   align-items: flex-start;
 }
 .metric-card .eyebrow {
-  font-size: 7px;
+  font-size: 10px;
   letter-spacing: 1px;
 }
 .metric-card > strong {
@@ -2079,7 +2079,7 @@ kbd {
   letter-spacing: 0;
 }
 .metric-card > span:last-child {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--muted);
   margin-top: 12px;
 }
@@ -2093,7 +2093,7 @@ kbd {
   display: flex;
   gap: 18px;
   color: var(--muted);
-  font-size: 9px;
+  font-size: 10px;
   padding: 0 26px;
 }
 .bar-legend span {
@@ -2116,7 +2116,7 @@ kbd {
   margin: 17px 0;
 }
 .metric-bars > div > span {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--muted);
   width: 39px;
 }
@@ -2136,7 +2136,7 @@ kbd {
   padding-right: 5px;
 }
 .metric-bars b {
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 400;
   color: var(--surface);
 }
@@ -2152,7 +2152,7 @@ kbd {
 }
 .metric-bars small {
   display: block;
-  font-size: 7px;
+  font-size: 10px;
   font-weight: 400;
   color: var(--muted);
   margin-top: 4px;
@@ -2199,7 +2199,7 @@ table {
   white-space: nowrap;
 }
 th {
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 0.3px;
   font-weight: 500;
   color: var(--muted);
@@ -2299,11 +2299,11 @@ tbody tr:hover {
 }
 .authority-toolbar .primary-button,
 .authority-toolbar .secondary-button {
-  font-size: 9px;
+  font-size: 10px;
 }
 .table-sub {
   display: block;
-  font-size: 8px;
+  font-size: 10px;
   margin-top: 6px;
   color: var(--muted);
 }
@@ -2314,7 +2314,7 @@ tbody tr:hover {
   height: 26px;
   border: 1px solid var(--line);
   border-radius: 50%;
-  font-size: 9px;
+  font-size: 10px;
 }
 .top-rank {
   background: var(--orange-light);
@@ -2345,7 +2345,7 @@ tbody tr:hover {
   justify-content: center;
 }
 .planner-card label {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--muted);
 }
 .planner-card input {
@@ -2355,7 +2355,7 @@ tbody tr:hover {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 9px;
+  font-size: 10px;
 }
 .status-label i {
   height: 5px;
@@ -2426,12 +2426,12 @@ tbody tr:hover {
   right: 12px;
 }
 .report-form .info-note {
-  font-size: 9px;
+  font-size: 10px;
 }
 .form-fine {
   display: block;
   text-align: center;
-  font-size: 8px;
+  font-size: 10px;
   line-height: 1.8;
   color: var(--muted);
   margin-top: 14px;
@@ -2470,7 +2470,7 @@ tbody tr:hover {
   right: -83px;
 }
 .pledge-card .eyebrow {
-  font-size: 8px;
+  font-size: 10px;
 }
 .pledge-card h2 {
   font-family: Georgia, serif;
@@ -2511,7 +2511,7 @@ tbody tr:hover {
   font-weight: 400;
 }
 .pledge-count > span {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--muted);
 }
 .community-stats {
@@ -2697,7 +2697,7 @@ tbody tr:hover {
   margin-top: 15px;
 }
 .source-grid .badge {
-  font-size: 6px;
+  font-size: 10px;
   letter-spacing: 0.4px;
 }
 .embed-page {
@@ -2727,7 +2727,7 @@ tbody tr:hover {
   margin-top: 28px;
   border-top: 1px solid var(--line);
   color: var(--muted);
-  font-size: 8px;
+  font-size: 10px;
 }
 .page-footer > span {
   display: flex;
@@ -2759,7 +2759,7 @@ tbody tr:hover {
   align-items: center;
 }
 .page-footer button {
-  font-size: 8px;
+  font-size: 10px;
   color: var(--muted);
 }
 .assistant-launch {
@@ -2842,11 +2842,11 @@ tbody tr:hover {
 }
 .location-command > span {
   color: var(--muted);
-  font-size: 8px;
+  font-size: 10px;
   margin-left: auto;
 }
 .command-label {
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 1.2px;
   color: var(--muted);
   padding: 21px 23px 10px;
@@ -2882,7 +2882,7 @@ tbody tr:hover {
 .command-results > button > div > span {
   display: block;
   color: var(--muted);
-  font-size: 8px;
+  font-size: 10px;
   margin-top: 5px;
 }
 .command-results b {
@@ -2891,7 +2891,7 @@ tbody tr:hover {
   letter-spacing: -0.5px;
 }
 .command-results b small {
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 0;
   color: var(--muted);
 }
@@ -2901,7 +2901,7 @@ tbody tr:hover {
   align-items: center;
   border-top: 1px solid var(--line);
   padding: 13px 22px;
-  font-size: 9px;
+  font-size: 10px;
   color: var(--muted);
 }
 .empty-state {
@@ -3045,7 +3045,7 @@ tbody tr:hover {
 }
 .assistant-body > .badge {
   margin-top: 15px;
-  font-size: 7px;
+  font-size: 10px;
 }
 .suggestions {
   display: flex;
@@ -3083,7 +3083,7 @@ tbody tr:hover {
 }
 .assistant-answer small {
   display: block;
-  font-size: 8px;
+  font-size: 10px;
   color: var(--muted);
   line-height: 1.7;
   margin-top: 13px;
@@ -3110,7 +3110,7 @@ tbody tr:hover {
 }
 .assistant-fine {
   text-align: center;
-  font-size: 8px;
+  font-size: 10px;
   color: var(--muted);
   padding: 13px 15px;
 }
@@ -3136,7 +3136,7 @@ tbody tr:hover {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 1px;
   color: var(--muted);
 }
@@ -3174,7 +3174,7 @@ tbody tr:hover {
   justify-content: space-between;
   gap: 10px;
   margin-top: 20px;
-  font-size: 8px;
+  font-size: 10px;
   color: var(--muted);
   align-items: center;
 }
@@ -3262,7 +3262,7 @@ tbody tr:hover {
     font-size: 18px;
   }
   .air-card-foot {
-    font-size: 7px;
+    font-size: 10px;
   }
   .air-time {
     font-size: 10px;
@@ -3271,7 +3271,7 @@ tbody tr:hover {
     font-size: 11px;
   }
   .air-summary-row small {
-    font-size: 9px;
+    font-size: 10px;
   }
   .air-gauge {
     width: 76px;
@@ -3291,10 +3291,10 @@ tbody tr:hover {
     padding: 10px;
   }
   .nav-link small {
-    font-size: 5px;
+    font-size: 10px;
   }
   .sidebar-search {
-    font-size: 9px;
+    font-size: 10px;
   }
   .sidebar-search kbd {
     display: none;
@@ -3319,7 +3319,7 @@ tbody tr:hover {
   }
   .place-picker {
     max-width: 200px;
-    font-size: 9px;
+    font-size: 10px;
   }
   .overview-grid,
   .lower-grid {
@@ -3340,17 +3340,17 @@ tbody tr:hover {
     padding: 17px;
   }
   .map-card-header .eyebrow {
-    font-size: 7px;
+    font-size: 10px;
   }
   .map-card-header .segmented {
     margin-left: auto;
   }
   .map-card-header .segmented button {
-    font-size: 8px;
+    font-size: 10px;
     padding: 5px 7px;
   }
   .air-card-top .eyebrow {
-    font-size: 7px;
+    font-size: 10px;
   }
   .big-number {
     font-size: 59px;
@@ -3359,16 +3359,16 @@ tbody tr:hover {
     font-size: 19px;
   }
   .air-summary-row strong {
-    font-size: 9px;
+    font-size: 10px;
   }
   .air-summary-row small {
-    font-size: 7px;
+    font-size: 10px;
   }
   .air-time {
-    font-size: 8px;
+    font-size: 10px;
   }
   .air-card-foot {
-    font-size: 5.5px;
+    font-size: 10px;
   }
   .air-card > .primary-button {
     margin-top: 17px;
@@ -3396,18 +3396,18 @@ tbody tr:hover {
     font-size: 10px;
   }
   .insight-card p {
-    font-size: 8px;
+    font-size: 10px;
   }
   .insight-icon {
     height: 30px;
     width: 30px;
   }
   .page-footer > span {
-    font-size: 7px;
+    font-size: 10px;
   }
   .page-footer > div {
     gap: 12px;
-    font-size: 7px;
+    font-size: 10px;
   }
   .page-footer > div > span {
     display: none;
@@ -3439,7 +3439,7 @@ tbody tr:hover {
     font-size: 28px;
   }
   .scenario-stats .eyebrow {
-    font-size: 6px;
+    font-size: 10px;
   }
   .scenario-details {
     flex-wrap: wrap;
@@ -3451,10 +3451,10 @@ tbody tr:hover {
     font-size: 34px;
   }
   .metric-card .eyebrow {
-    font-size: 6px;
+    font-size: 10px;
   }
   .metric-card > span:last-child {
-    font-size: 8px;
+    font-size: 10px;
   }
   .card-head {
     padding: 22px 21px 17px;
@@ -3512,16 +3512,16 @@ tbody tr:hover {
     font-size: 29px;
   }
   .brand-ai {
-    font-size: 6px;
+    font-size: 10px;
   }
   .sidebar-search {
     margin-bottom: 24px;
   }
   .nav-group-label {
-    font-size: 7px;
+    font-size: 10px;
   }
   .nav-link {
-    font-size: 9px;
+    font-size: 10px;
     gap: 8px;
   }
   .nav-link svg {
@@ -3550,7 +3550,7 @@ tbody tr:hover {
     letter-spacing: -1.1px;
   }
   .page-heading p {
-    font-size: 9px;
+    font-size: 10px;
     max-width: 270px;
   }
   .heading-controls {
@@ -3559,11 +3559,11 @@ tbody tr:hover {
   .place-picker {
     max-width: 185px;
     padding: 9px 8px;
-    font-size: 8px;
+    font-size: 10px;
     gap: 5px;
   }
   .context-bar {
-    font-size: 8px;
+    font-size: 10px;
   }
   .context-bar > div {
     gap: 6px;
@@ -3590,7 +3590,7 @@ tbody tr:hover {
     padding: 15px;
   }
   .air-card-top .eyebrow {
-    font-size: 6.5px;
+    font-size: 10px;
     letter-spacing: 1px;
   }
   .air-card > h2 {
@@ -3598,7 +3598,7 @@ tbody tr:hover {
   }
   .air-time {
     gap: 5px;
-    font-size: 7px;
+    font-size: 10px;
   }
   .big-number {
     font-size: 53px;
@@ -3618,17 +3618,17 @@ tbody tr:hover {
     margin-bottom: 20px;
   }
   .air-status {
-    font-size: 9px;
+    font-size: 10px;
   }
   .air-status > span:last-child {
-    font-size: 6px;
+    font-size: 10px;
   }
   .air-card-foot {
-    font-size: 5px;
+    font-size: 10px;
     letter-spacing: -0.1px;
   }
   .air-card > .primary-button {
-    font-size: 8px;
+    font-size: 10px;
     padding: 8px;
   }
   .air-summary-row {
@@ -3636,20 +3636,20 @@ tbody tr:hover {
     padding-top: 16px;
   }
   .air-summary-row strong {
-    font-size: 8px;
+    font-size: 10px;
   }
   .air-summary-row small {
-    font-size: 6px;
+    font-size: 10px;
   }
   .air-map {
     height: 360px;
     min-height: 330px;
   }
   .map-attribution {
-    font-size: 5px;
+    font-size: 10px;
   }
   .map-place-label {
-    font-size: 7px;
+    font-size: 10px;
   }
   .label-delhi {
     font-size: 11px;
@@ -3659,10 +3659,10 @@ tbody tr:hover {
     padding: 9px;
   }
   .map-selected strong {
-    font-size: 8px;
+    font-size: 10px;
   }
   .map-selected span:not(.pulse-dot) {
-    font-size: 6px;
+    font-size: 10px;
   }
   .map-legend {
     width: 175px;
@@ -3671,11 +3671,11 @@ tbody tr:hover {
   }
   .map-wind {
     right: 12px;
-    font-size: 7px;
+    font-size: 10px;
     bottom: 36px;
   }
   .map-tag {
-    font-size: 6px;
+    font-size: 10px;
     gap: 4px;
     padding: 6px 7px;
   }
@@ -3694,10 +3694,10 @@ tbody tr:hover {
     display: none;
   }
   .timeline-range > div {
-    font-size: 6px;
+    font-size: 10px;
   }
   .timeline-range strong {
-    font-size: 7px;
+    font-size: 10px;
   }
   .timeline-range > div > span:last-child {
     display: none;
@@ -3712,10 +3712,10 @@ tbody tr:hover {
     font-size: 18px;
   }
   .window-card p {
-    font-size: 8px;
+    font-size: 10px;
   }
   .window-card .eyebrow {
-    font-size: 7px;
+    font-size: 10px;
   }
   .insight-grid {
     grid-template-columns: 1fr 1fr;
@@ -3727,10 +3727,10 @@ tbody tr:hover {
     padding: 13px;
   }
   .weather-mini > strong {
-    font-size: 8px;
+    font-size: 10px;
   }
   .weather-mini > div {
-    font-size: 7px;
+    font-size: 10px;
   }
   .page-footer > span > .small-brand {
     display: none;
@@ -3805,7 +3805,7 @@ tbody tr:hover {
     font-size: 36px;
   }
   .scenario-stats .eyebrow {
-    font-size: 8px;
+    font-size: 10px;
   }
   .metric-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -3837,10 +3837,10 @@ tbody tr:hover {
     font-size: 40px;
   }
   .report-stamp > span:first-child {
-    font-size: 6px;
+    font-size: 10px;
   }
   .report-stamp > span:last-child {
-    font-size: 7px;
+    font-size: 10px;
   }
   .report-hero {
     padding-left: 15px;
@@ -3865,7 +3865,7 @@ tbody tr:hover {
   }
   .report-options > button {
     padding: 14px;
-    font-size: 9px;
+    font-size: 10px;
   }
   .pledge-card {
     padding: 27px;
@@ -3877,7 +3877,7 @@ tbody tr:hover {
     font-size: 11px;
   }
   .pledge-card .primary-button {
-    font-size: 9px;
+    font-size: 10px;
   }
   .pledge-count {
     flex-direction: column;
@@ -3887,7 +3887,7 @@ tbody tr:hover {
     gap: 16px;
   }
   .community-stats .badge {
-    font-size: 6px;
+    font-size: 10px;
   }
   .method-flow {
     grid-template-columns: 1fr 1fr;
@@ -3943,7 +3943,7 @@ tbody tr:hover {
     font-size: 31px;
   }
   .sidebar .brand-ai {
-    font-size: 7px;
+    font-size: 10px;
   }
   .sidebar .nav-link {
     font-size: 11px;
@@ -3951,7 +3951,7 @@ tbody tr:hover {
     gap: 11px;
   }
   .sidebar .nav-group-label {
-    font-size: 8px;
+    font-size: 10px;
   }
   .sidebar .nav-link small {
     display: inline;
@@ -3990,7 +3990,7 @@ tbody tr:hover {
   }
   .place-picker {
     max-width: 215px;
-    font-size: 9px;
+    font-size: 10px;
   }
   .overview-grid,
   .lower-grid {
@@ -4017,34 +4017,34 @@ tbody tr:hover {
     height: 53px;
   }
   .air-card-top .eyebrow {
-    font-size: 7px;
+    font-size: 10px;
   }
   .air-summary-row strong {
-    font-size: 9px;
+    font-size: 10px;
   }
   .air-summary-row small {
-    font-size: 7px;
+    font-size: 10px;
   }
   .air-card-foot {
-    font-size: 5.5px;
+    font-size: 10px;
   }
   .air-time {
-    font-size: 8px;
+    font-size: 10px;
   }
   .air-card > .primary-button {
-    font-size: 9px;
+    font-size: 10px;
   }
   .air-status {
     font-size: 10px;
   }
   .air-status > span:last-child {
-    font-size: 6px;
+    font-size: 10px;
   }
   .map-selected {
     left: 40%;
   }
   .map-tag {
-    font-size: 7px;
+    font-size: 10px;
   }
   .map-legend {
     width: 170px;
@@ -4056,16 +4056,16 @@ tbody tr:hover {
     font-size: 23px;
   }
   .window-card p {
-    font-size: 9px;
+    font-size: 10px;
   }
   .window-card .eyebrow {
-    font-size: 8px;
+    font-size: 10px;
   }
   .window-time {
     font-size: 21px;
   }
   .window-fine {
-    font-size: 7px;
+    font-size: 10px;
   }
   .my-air-grid {
     grid-template-columns: 260px 1fr;
@@ -4077,16 +4077,16 @@ tbody tr:hover {
     display: inline-flex;
   }
   .page-footer > span {
-    font-size: 7px;
+    font-size: 10px;
   }
   .insight-card h3 {
     font-size: 11px;
   }
   .context-bar {
-    font-size: 9px;
+    font-size: 10px;
   }
   .context-actions select {
-    font-size: 8px;
+    font-size: 10px;
   }
   .about-hero h2 {
     font-size: 57px;
@@ -4117,7 +4117,7 @@ tbody tr:hover {
     letter-spacing: -1.4px;
   }
   .heading-eyebrow {
-    font-size: 7px;
+    font-size: 10px;
     letter-spacing: 1.4px;
     margin-bottom: 12px;
   }
@@ -4144,7 +4144,7 @@ tbody tr:hover {
   .context-bar {
     padding: 10px;
     align-items: center;
-    font-size: 8px;
+    font-size: 10px;
     gap: 7px;
   }
   .context-bar > div:first-child {
@@ -4156,10 +4156,10 @@ tbody tr:hover {
   }
   .context-actions select {
     padding: 5px;
-    font-size: 8px;
+    font-size: 10px;
   }
   .context-bar .badge {
-    font-size: 6px;
+    font-size: 10px;
     padding: 4px 5px;
   }
   .overview-grid {
@@ -4178,13 +4178,13 @@ tbody tr:hover {
     font-size: 24px;
   }
   .air-card-top .eyebrow {
-    font-size: 8px;
+    font-size: 10px;
   }
   .air-time {
-    font-size: 9px;
+    font-size: 10px;
   }
   .air-time .badge {
-    font-size: 7px;
+    font-size: 10px;
   }
   .air-reading {
     margin: 20px 0;
@@ -4197,7 +4197,7 @@ tbody tr:hover {
     letter-spacing: 0;
   }
   .reading-label {
-    font-size: 9px;
+    font-size: 10px;
   }
   .air-gauge {
     height: 75px;
@@ -4210,7 +4210,7 @@ tbody tr:hover {
     font-size: 12px;
   }
   .air-status > span:last-child {
-    font-size: 8px;
+    font-size: 10px;
   }
   .interval-row {
     font-size: 10px;
@@ -4228,21 +4228,21 @@ tbody tr:hover {
     font-size: 10px;
   }
   .air-summary-row div > span {
-    font-size: 9px;
+    font-size: 10px;
   }
   .air-card > .primary-button {
     font-size: 11px;
     min-height: 39px;
   }
   .air-card-foot {
-    font-size: 7px;
+    font-size: 10px;
   }
   .weather-mini {
     padding: 16px;
     min-height: 69px;
   }
   .weather-mini > div {
-    font-size: 8px;
+    font-size: 10px;
   }
   .weather-mini > strong {
     font-size: 11px;
@@ -4258,7 +4258,7 @@ tbody tr:hover {
     flex-wrap: wrap;
   }
   .map-card-header .eyebrow {
-    font-size: 7px;
+    font-size: 10px;
   }
   .map-card-header h2 {
     font-size: 16px;
@@ -4267,7 +4267,7 @@ tbody tr:hover {
     margin-left: auto;
   }
   .map-card-header .segmented button {
-    font-size: 8px;
+    font-size: 10px;
     padding: 6px;
   }
   .air-map {
@@ -4280,16 +4280,16 @@ tbody tr:hover {
     top: 12px;
   }
   .map-tag {
-    font-size: 7px;
+    font-size: 10px;
   }
   .map-place-label {
-    font-size: 8px;
+    font-size: 10px;
   }
   .label-delhi {
     font-size: 12px;
   }
   .map-attribution {
-    font-size: 5.5px;
+    font-size: 10px;
     gap: 5px;
   }
   .map-selected {
@@ -4298,13 +4298,13 @@ tbody tr:hover {
     max-width: 180px;
   }
   .map-selected strong {
-    font-size: 9px;
+    font-size: 10px;
   }
   .map-selected span:not(.pulse-dot) {
-    font-size: 6px;
+    font-size: 10px;
   }
   .map-wind {
-    font-size: 7px;
+    font-size: 10px;
   }
   .time-controls {
     padding: 18px 14px 14px;
@@ -4312,13 +4312,13 @@ tbody tr:hover {
     min-height: 69px;
   }
   .timeline-range > div {
-    font-size: 6px;
+    font-size: 10px;
   }
   .timeline-range > div > span:last-child {
     display: inline;
   }
   .timeline-range strong {
-    font-size: 7px;
+    font-size: 10px;
   }
   .lower-grid {
     grid-template-columns: 1fr;
@@ -4335,7 +4335,7 @@ tbody tr:hover {
     font-size: 10px;
   }
   .chart-key {
-    font-size: 7px;
+    font-size: 10px;
   }
   .chart-wrap {
     padding: 8px 10px 0;
@@ -4349,18 +4349,18 @@ tbody tr:hover {
   }
   .chart-footer {
     padding: 13px 16px;
-    font-size: 7px;
+    font-size: 10px;
     gap: 6px;
   }
   .chart-footer button {
-    font-size: 7px;
+    font-size: 10px;
   }
   .window-card {
     padding: 25px 23px;
   }
   .window-card .eyebrow {
     margin-top: 0;
-    font-size: 8px;
+    font-size: 10px;
   }
   .window-card h2 {
     font-size: 26px;
@@ -4390,7 +4390,7 @@ tbody tr:hover {
     font-size: 11px;
   }
   .window-fine {
-    font-size: 8px;
+    font-size: 10px;
   }
   .insight-grid {
     grid-template-columns: 1fr;
@@ -4408,7 +4408,7 @@ tbody tr:hover {
     font-size: 12px;
   }
   .insight-card p {
-    font-size: 9px;
+    font-size: 10px;
   }
   .insight-icon {
     width: 36px;
@@ -4422,14 +4422,14 @@ tbody tr:hover {
     align-items: flex-start;
   }
   .page-footer > span {
-    font-size: 8px;
+    font-size: 10px;
   }
   .page-footer > div {
-    font-size: 8px;
+    font-size: 10px;
     gap: 23px;
   }
   .page-footer button {
-    font-size: 8px;
+    font-size: 10px;
   }
   .assistant-launch {
     right: 16px;
@@ -4459,7 +4459,7 @@ tbody tr:hover {
     width: 15px;
   }
   .phase-tabs small {
-    font-size: 7px;
+    font-size: 10px;
   }
   .replay-toolbar {
     gap: 12px;
@@ -4481,7 +4481,7 @@ tbody tr:hover {
     grid-template-columns: repeat(2, 1fr);
   }
   .weather-strip span {
-    font-size: 9px;
+    font-size: 10px;
   }
   .weather-strip strong {
     font-size: 20px;
@@ -4518,7 +4518,7 @@ tbody tr:hover {
     margin-bottom: 12px;
   }
   .advice-foot {
-    font-size: 8px;
+    font-size: 10px;
     padding: 13px 21px;
   }
   .why-intro {
@@ -4544,10 +4544,10 @@ tbody tr:hover {
     white-space: nowrap;
   }
   .why-total strong span {
-    font-size: 9px;
+    font-size: 10px;
   }
   .why-total .badge {
-    font-size: 6px;
+    font-size: 10px;
   }
   .why-grid {
     grid-template-columns: 1fr;
@@ -4604,15 +4604,15 @@ tbody tr:hover {
     white-space: nowrap;
   }
   .scenario-stats .eyebrow {
-    font-size: 6px;
+    font-size: 10px;
     letter-spacing: 0.5px;
   }
   .scenario-stats small {
-    font-size: 7px;
+    font-size: 10px;
     letter-spacing: 0;
   }
   .scenario-details {
-    font-size: 9px;
+    font-size: 10px;
     gap: 13px;
   }
   .scenario-details > span {
@@ -4657,11 +4657,11 @@ tbody tr:hover {
     font-size: 31px;
   }
   .report-stamp > span:first-child {
-    font-size: 4.5px;
+    font-size: 10px;
     letter-spacing: 0.8px;
   }
   .report-stamp > span:last-child {
-    font-size: 5.5px;
+    font-size: 10px;
     letter-spacing: 0;
   }
   .metric-grid {
@@ -4673,7 +4673,7 @@ tbody tr:hover {
     min-height: 135px;
   }
   .metric-card .eyebrow {
-    font-size: 6px;
+    font-size: 10px;
     letter-spacing: 0.7px;
   }
   .metric-card > strong {
@@ -4681,11 +4681,11 @@ tbody tr:hover {
     letter-spacing: -1.2px;
   }
   .metric-card > strong small {
-    font-size: 8px;
+    font-size: 10px;
     margin-left: 4px;
   }
   .metric-card > span:last-child {
-    font-size: 8px;
+    font-size: 10px;
     line-height: 1.6;
   }
   .report-charts {
@@ -4728,7 +4728,7 @@ tbody tr:hover {
     gap: 12px;
   }
   .table-card .card-head .secondary-button {
-    font-size: 9px;
+    font-size: 10px;
     padding: 8px 10px;
     min-height: 32px;
   }
@@ -4749,7 +4749,7 @@ tbody tr:hover {
   }
   .authority-banner .eyebrow,
   .status-banner .eyebrow {
-    font-size: 6px;
+    font-size: 10px;
     letter-spacing: 1px;
   }
   .authority-banner h2,
@@ -4759,7 +4759,7 @@ tbody tr:hover {
   }
   .authority-banner p,
   .status-banner p {
-    font-size: 9px;
+    font-size: 10px;
     line-height: 1.8;
   }
   .authority-toolbar {
@@ -4770,7 +4770,7 @@ tbody tr:hover {
   }
   .authority-toolbar > .segmented button {
     flex: 1;
-    font-size: 9px;
+    font-size: 10px;
   }
   .authority-toolbar > div:last-child {
     width: 100%;
@@ -4796,7 +4796,7 @@ tbody tr:hover {
     grid-column: 1/-1;
   }
   .planner-card .primary-button {
-    font-size: 9px;
+    font-size: 10px;
   }
   .community-grid {
     grid-template-columns: 1fr;
@@ -4845,13 +4845,13 @@ tbody tr:hover {
     border: 0;
   }
   .community-stats .badge {
-    font-size: 7px;
+    font-size: 10px;
   }
   .about-hero {
     padding: 28px 6px 36px;
   }
   .about-hero > .eyebrow {
-    font-size: 7px;
+    font-size: 10px;
     letter-spacing: 1px;
   }
   .about-hero h2 {
@@ -4870,7 +4870,7 @@ tbody tr:hover {
     font-size: 12px;
   }
   .method-flow p {
-    font-size: 9px;
+    font-size: 10px;
   }
   .method-flow > article > span {
     font-size: 23px;
@@ -4900,10 +4900,10 @@ tbody tr:hover {
     font-size: 11px;
   }
   .source-grid p {
-    font-size: 9px;
+    font-size: 10px;
   }
   .source-grid .badge {
-    font-size: 5px;
+    font-size: 10px;
     padding: 4px 5px;
   }
   .sources-card .card-head {
@@ -4923,7 +4923,7 @@ tbody tr:hover {
     font-size: 11px;
   }
   .command-label {
-    font-size: 7px;
+    font-size: 10px;
   }
   .command-results {
     max-height: 45vh;
@@ -4939,17 +4939,17 @@ tbody tr:hover {
     font-size: 14px;
   }
   .command-results > button > div > span {
-    font-size: 7px;
+    font-size: 10px;
   }
   .command-results b small {
-    font-size: 6px;
+    font-size: 10px;
   }
   .command-footer {
-    font-size: 7px;
+    font-size: 10px;
     padding: 13px 17px;
   }
   .command-footer kbd {
-    font-size: 7px;
+    font-size: 10px;
   }
   .modal-backdrop {
     padding: 8vh 13px 20px;
@@ -5048,11 +5048,11 @@ tbody tr:hover {
   }
   th,
   td {
-    font-size: 8px;
+    font-size: 10px;
     padding: 10px;
   }
   .table-sub {
-    font-size: 6px;
+    font-size: 10px;
   }
   .primary-button {
     display: none;
@@ -5122,7 +5122,7 @@ tbody tr:hover {
 }
 .widget-shell > small {
   display: block;
-  font-size: 8px;
+  font-size: 10px;
   color: var(--muted);
   line-height: 1.8;
   text-align: center;
@@ -5146,14 +5146,14 @@ tbody tr:hover {
   display: inline-flex;
 }
 .air-metric-toggle button {
-  font-size: 9px;
+  font-size: 10px;
   padding: 6px 10px;
 }
 .concentration-detail {
   display: flex;
   justify-content: space-between;
   gap: 8px;
-  font-size: 9px;
+  font-size: 10px;
   padding-top: 13px;
 }
 .concentration-detail > span {
@@ -5163,7 +5163,7 @@ tbody tr:hover {
   font-weight: 500;
 }
 .aqi-fine {
-  font-size: 8px;
+  font-size: 10px;
   line-height: 1.7;
   color: var(--muted);
   margin-top: 10px;
@@ -5189,4 +5189,584 @@ tbody tr:hover {
 }
 .model-caution a {
   text-decoration: underline;
+}
+.festival-banner {
+  display: flex;
+  align-items: center;
+  gap: 27px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 25px 27px;
+  margin: 0 0 20px;
+  position: relative;
+  overflow: hidden;
+}
+.festival-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  border-right: 1px solid var(--line);
+  padding-right: 27px;
+  flex-shrink: 0;
+}
+.festival-date > span {
+  font-size: 10px;
+  letter-spacing: 1.6px;
+  color: var(--muted);
+}
+.festival-date > strong {
+  font-family: Georgia, serif;
+  font-size: 60px;
+  line-height: 1;
+  letter-spacing: -3px;
+  font-weight: 400;
+  color: var(--green);
+}
+.festival-copy {
+  max-width: 530px;
+}
+.festival-copy h2 {
+  font-family: Georgia, serif;
+  font-size: 29px;
+  font-weight: 400;
+  letter-spacing: -1px;
+  margin-top: 7px;
+}
+.festival-copy p {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 9px;
+  line-height: 1.8;
+}
+.festival-copy > div {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.festival-copy .badge {
+  font-size: 10px;
+}
+.festival-tour {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--green-light);
+  margin-left: auto;
+  flex-shrink: 0;
+  text-align: left;
+  color: var(--green);
+}
+.festival-tour span {
+  font-size: 10px;
+}
+.festival-tour small {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 5px;
+}
+.festival-tour > svg:last-child {
+  width: 14px;
+}
+@media (max-width: 1150px) {
+  .festival-tour {
+    padding: 12px;
+    gap: 8px;
+  }
+  .festival-tour > svg:first-child {
+    display: none;
+  }
+  .festival-copy h2 {
+    font-size: 25px;
+  }
+  .festival-banner {
+    gap: 20px;
+    padding: 23px;
+  }
+  .festival-date {
+    padding-right: 20px;
+  }
+}
+@media (max-width: 800px) {
+  .festival-tour {
+    display: none;
+  }
+}
+@media (max-width: 650px) {
+  .festival-banner {
+    padding: 20px 17px;
+    gap: 17px;
+    align-items: flex-start;
+  }
+  .festival-date {
+    padding-right: 17px;
+    padding-top: 5px;
+  }
+  .festival-date strong {
+    font-size: 48px;
+  }
+  .festival-date > span {
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+  .festival-copy .eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.8px;
+  }
+  .festival-copy h2 {
+    font-size: 24px;
+    line-height: 1.15;
+    margin-top: 8px;
+  }
+  .festival-copy p {
+    font-size: 10px;
+    margin-top: 10px;
+  }
+  .festival-copy > div {
+    gap: 5px;
+    margin-top: 11px;
+  }
+  .festival-copy .badge {
+    font-size: 10px;
+    letter-spacing: 0.3px;
+    padding: 4px 5px;
+  }
+  .festival-copy .badge:last-child {
+    display: none;
+  }
+}
+
+/* Readable home-page hierarchy and a manually controlled, non-obscuring tour. */
+.page-heading p {
+  font-size: 14px;
+  line-height: 1.65;
+  max-width: 650px;
+}
+.heading-eyebrow,
+.eyebrow,
+.nav-group-label {
+  font-size: 11px;
+  line-height: 1.5;
+}
+.nav-link {
+  font-size: 13px;
+  min-height: 42px;
+}
+.nav-link small {
+  font-size: 10px;
+}
+.context-bar {
+  font-size: 12px;
+  line-height: 1.5;
+}
+.context-actions select {
+  font-size: 12px;
+  min-height: 34px;
+}
+.badge {
+  font-size: 10px;
+  line-height: 1.35;
+  letter-spacing: 0.4px;
+}
+.festival-banner {
+  padding: 26px;
+  gap: 24px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.festival-copy {
+  flex: 1;
+  min-width: 240px;
+  max-width: none;
+}
+.festival-copy h2 {
+  font-size: 30px;
+  line-height: 1.2;
+}
+.festival-copy p {
+  font-size: 14px;
+  line-height: 1.75;
+  max-width: 580px;
+}
+.festival-copy .eyebrow,
+.festival-copy .badge {
+  font-size: 11px;
+}
+.festival-copy > div {
+  gap: 8px;
+  margin-top: 15px;
+}
+.festival-date > span {
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+.festival-tour {
+  display: flex;
+  gap: 12px;
+  padding: 17px 18px;
+  min-height: 66px;
+  white-space: normal;
+}
+.festival-tour > svg:first-child {
+  display: block;
+}
+.festival-tour span {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.festival-tour small {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  margin-top: 5px;
+}
+.judge-link {
+  font-size: 13px;
+  min-height: 44px;
+}
+.sidebar-caption {
+  font-size: 10px;
+  line-height: 1.6;
+}
+.map-card-header h2,
+.forecast-chart-card .card-head h2 {
+  font-size: 18px;
+  line-height: 1.35;
+}
+.card-head p {
+  font-size: 12px;
+  line-height: 1.6;
+}
+.segmented button,
+.segmented.small button {
+  font-size: 12px;
+  padding: 8px 10px;
+}
+.air-time,
+.reading-label,
+.interval-row,
+.air-summary-row div > span,
+.air-card-foot,
+.air-status > span:last-child {
+  font-size: 11px;
+  line-height: 1.5;
+}
+.air-time,
+.air-card-foot {
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.air-card-foot > span:last-child {
+  white-space: normal;
+}
+.air-summary-row strong {
+  font-size: 13px;
+  line-height: 1.6;
+}
+.air-summary-row small {
+  font-size: 11px;
+  line-height: 1.6;
+}
+.air-card > .primary-button {
+  font-size: 12px;
+  min-height: 42px;
+}
+.air-metric-toggle button {
+  font-size: 12px;
+}
+.concentration-detail,
+.aqi-fine,
+.model-caution {
+  font-size: 12px;
+  line-height: 1.65;
+}
+.chart-key,
+.chart-footer,
+.chart-footer button {
+  font-size: 11px;
+  line-height: 1.6;
+}
+.chart-key {
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.chart-footer {
+  flex-wrap: wrap;
+}
+.timeline-range > div,
+.timeline-range strong,
+.timeline-range strong > span {
+  font-size: 10px;
+}
+.weather-mini > div {
+  font-size: 11px;
+}
+.weather-mini > strong {
+  font-size: 12px;
+  line-height: 1.5;
+}
+.window-card .eyebrow {
+  font-size: 11px;
+}
+.window-card p {
+  font-size: 13px;
+  line-height: 1.7;
+}
+.window-date,
+.window-fine {
+  font-size: 11px;
+  line-height: 1.6;
+}
+.insight-card h3 {
+  font-size: 13px;
+  line-height: 1.5;
+}
+.insight-card p {
+  font-size: 12px;
+  line-height: 1.5;
+}
+.map-attribution {
+  font-size: 10px;
+  line-height: 1.4;
+  flex-wrap: wrap;
+}
+.map-controls button {
+  width: 36px;
+  height: 36px;
+}
+.tour-card {
+  left: auto;
+  right: 24px;
+  bottom: 24px;
+  width: 400px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 40px);
+  overflow: auto;
+  padding: 23px 24px;
+  border-radius: 13px;
+  box-shadow: 0 12px 60px #173b2526;
+  z-index: 95;
+}
+.tour-top > span {
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: 0.7px;
+}
+.tour-top > .icon-button {
+  width: 36px;
+  height: 36px;
+}
+.tour-dots {
+  gap: 6px;
+  margin: 16px 0 21px;
+}
+.tour-dots button {
+  height: 8px;
+  min-height: 8px;
+  border-radius: 4px;
+}
+.tour-dots button[aria-current="step"] {
+  background: var(--green);
+}
+.tour-card h3 {
+  font-size: 22px;
+  line-height: 1.3;
+  letter-spacing: -0.5px;
+}
+.tour-card p {
+  font-size: 14px;
+  line-height: 1.8;
+  margin-top: 12px;
+}
+.tour-bottom {
+  margin-top: 24px;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+.tour-navigation {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+.tour-bottom button {
+  font-size: 13px;
+  min-height: 42px;
+  padding: 10px 15px;
+  gap: 8px;
+}
+.tour-bottom .tour-previous {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+.tour-active .assistant-launch {
+  display: none;
+}
+.tour-active .main-content {
+  padding-bottom: 340px;
+}
+@media (max-width: 1150px) {
+  .festival-tour {
+    margin-left: 0;
+  }
+  .festival-copy h2 {
+    font-size: 27px;
+  }
+  .festival-copy p {
+    font-size: 13px;
+  }
+  .nav-link {
+    font-size: 12px;
+  }
+}
+@media (max-width: 650px) {
+  .festival-banner {
+    padding: 21px 19px;
+    gap: 18px;
+    align-items: flex-start;
+  }
+  .festival-date {
+    padding-right: 17px;
+  }
+  .festival-date > span {
+    font-size: 10px;
+    letter-spacing: 0.6px;
+  }
+  .festival-date > strong {
+    font-size: 48px;
+  }
+  .festival-copy {
+    min-width: 0;
+    flex-basis: calc(100% - 95px);
+  }
+  .festival-copy h2 {
+    font-size: 26px;
+  }
+  .festival-copy p {
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .festival-copy .eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.5px;
+  }
+  .festival-copy .badge {
+    font-size: 10px;
+  }
+  .festival-copy .badge:last-child {
+    display: inline-flex;
+  }
+  .festival-tour {
+    display: flex;
+    width: 100%;
+    justify-content: flex-start;
+    margin: 0;
+    padding: 14px 16px;
+    min-height: 62px;
+  }
+  .festival-tour > svg:last-child {
+    margin-left: auto;
+  }
+  .festival-tour span {
+    font-size: 14px;
+  }
+  .festival-tour small {
+    font-size: 12px;
+  }
+  .page-heading p {
+    font-size: 13px;
+    max-width: none;
+  }
+  .context-bar {
+    font-size: 11px;
+    flex-wrap: wrap;
+  }
+  .context-actions select {
+    font-size: 12px;
+  }
+  .window-card p {
+    font-size: 13px;
+    max-width: 260px;
+  }
+  .air-summary-row strong {
+    font-size: 13px;
+  }
+  .card-head {
+    flex-wrap: wrap;
+  }
+  .map-card-header .segmented {
+    margin-left: 0;
+    max-width: 100%;
+  }
+  .map-card-header h2 {
+    font-size: 17px;
+  }
+  .chart-footer {
+    font-size: 10px;
+  }
+  .insight-card h3 {
+    font-size: 14px;
+  }
+  .insight-card p {
+    font-size: 12px;
+  }
+  .tour-card {
+    right: 12px;
+    left: 12px;
+    bottom: 12px;
+    width: auto;
+    max-width: none;
+    padding: 19px 21px;
+    max-height: 50dvh;
+  }
+  .tour-card h3 {
+    font-size: 21px;
+  }
+  .tour-card p {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .tour-top > span {
+    font-size: 10px;
+  }
+  .tour-bottom {
+    font-size: 12px;
+    margin-top: 18px;
+  }
+  .map-attribution {
+    font-size: 10px;
+  }
+  .air-card-foot {
+    font-size: 10px;
+  }
+  .air-card-foot > span:last-child {
+    margin-left: 0;
+  }
+}
+.chart-label {
+  font-size: 14px;
+}
+@media (max-width: 650px) {
+  .chart-label {
+    font-size: 24px;
+  }
+  .chart-wrap {
+    padding-top: 14px;
+    padding-bottom: 8px;
+  }
+  .timeline-range > div {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+  .time-controls {
+    min-height: 78px;
+  }
 }

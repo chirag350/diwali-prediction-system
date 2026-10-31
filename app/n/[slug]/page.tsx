@@ -9,7 +9,7 @@ const slug = (name: string, id: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "")}-${id}`;
 export async function generateStaticParams() {
-  const snapshot = await getSnapshot("2025-during");
+  const snapshot = await getSnapshot("2026-during");
   return snapshot.stations.map((s) => ({ slug: slug(s.name, s.id) }));
 }
 async function NeighborhoodContent({
@@ -18,7 +18,7 @@ async function NeighborhoodContent({
   params: Promise<{ slug: string }>;
 }) {
   const { slug: requested } = await params;
-  const snapshot = await getSnapshot("2025-during");
+  const snapshot = await getSnapshot("2026-during");
   const station = snapshot.stations.find(
     (s) => slug(s.name, s.id) === requested,
   );

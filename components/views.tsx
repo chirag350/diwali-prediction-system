@@ -35,6 +35,7 @@ import {
   peak,
 } from "../lib/air";
 import modelJson from "../models/national-v1.json";
+import outlookBacktest from "../data/bundled/outlook-backtest.json";
 import modelAudit from "../data/bundled/model-audit.json";
 import { predict, type Artifact } from "../training/model";
 import { ForecastChart } from "./forecast-chart";
@@ -503,7 +504,11 @@ export function CompareView({
           title="Their next three days, together."
           subtitle={`Green: ${station.name} · Orange: ${other.name}`}
         />
-        <ForecastChart points={station.points} comparison={other.points} />
+        <ForecastChart
+          points={station.points}
+          comparison={other.points}
+          historical={!!station.outlook}
+        />
       </section>
       <InfoNote>
         {firstPeak.p50 >= secondPeak.p50 ? station.name : other.name} has the
@@ -561,6 +566,47 @@ export function ReportCardView({ registry }: { registry: Registry }) {
                 ))}
             </tbody>
           </table>
+        </div>
+      </section>
+      <section className="card table-card">
+        <CardHead
+          title="The 2026 outlook has its own test."
+          subtitle="Historical-analog member · rolling prior-year-only backtests · overlapping phase windows"
+        />
+        <div className="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Target festival</th>
+                <th>Forecast pairs</th>
+                <th>MAE · µg/m³</th>
+                <th>Persistence MAE</th>
+                <th>MAE improvement</th>
+                <th>Historical spread coverage</th>
+              </tr>
+            </thead>
+            <tbody>
+              {outlookBacktest.results
+                .filter((r) => r.key.endsWith(":all"))
+                .map((r) => (
+                  <tr key={r.key}>
+                    <td>{r.key.split(":")[0]}</td>
+                    <td>{r.n.toLocaleString()}</td>
+                    <td>{r.mae.toFixed(1)}</td>
+                    <td>{r.persistenceMae.toFixed(1)}</td>
+                    <td className="green-text">
+                      {(r.skill * 100).toFixed(1)}%
+                    </td>
+                    <td>{(r.coverage * 100).toFixed(1)}%</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="advice-foot">
+          No target year is used in its own analog set. These are retrospective
+          checks, not a guarantee for 2026. The band is empirical historical
+          spread and is not calibrated to 80% coverage.
         </div>
       </section>
       <div className="report-hero">
@@ -1397,7 +1443,11 @@ export function StatusView({
         </span>
         <div>
           <SectionLabel>THE PIPELINE, IN PLAIN SIGHT</SectionLabel>
-          <h2>Archive healthy. Live feeds unconfigured.</h2>
+          <h2>
+            {snapshot.kind === "outlook"
+              ? "Outlook ready. Live feeds unconfigured."
+              : "Archive healthy. Live feeds unconfigured."}
+          </h2>
           <p>
             All charts use bundled snapshots. No current observation is implied.
           </p>
@@ -1540,6 +1590,80 @@ export function StatusView({
           </a>
         </section>
       </div>
+    </>
+  );
+}
+
+export function OutlookEvidence({
+  snapshot,
+  station,
+  hour,
+}: {
+  snapshot: Snapshot;
+  station: Station;
+  hour: number;
+}) {
+  const point = station.points[hour];
+  return (
+    <>
+      <section className="about-hero">
+        <SectionLabel>2026 · AN OUTLOOK WITH A MEMORY</SectionLabel>
+        <h2>
+          The past has a pattern.
+          <br />
+          <em>The future has a range.</em>
+        </h2>
+        <p>
+          For each station and festival-relative hour, we take the median of at
+          least three previous Diwali seasons. No future observations are
+          invented.
+        </p>
+      </section>
+      <div className="metric-grid">
+        <Metric
+          label="HISTORICAL MEDIAN"
+          number={Math.round(point.p50).toString()}
+          unit="µg/m³"
+          note={`${dateLabel(point.time)}, ${hourLabel(point.time)} IST`}
+        />
+        <Metric
+          label="HISTORICAL P10–P90"
+          number={`${Math.round(point.p10)}–${Math.round(point.p90)}`}
+          note="Empirical spread, not calibrated confidence"
+        />
+        <Metric
+          label="SOURCE FESTIVALS"
+          number={String(station.outlook?.sourceYears.length ?? 0)}
+          note={station.outlook?.sourceYears.join(", ") ?? ""}
+        />
+        <Metric
+          label="MINIMUM HOURLY ANALOGS"
+          number={String(station.outlook?.minimumHourlySamples ?? 0)}
+          note="Same station, same festival-relative hour"
+        />
+      </div>
+      <section className="card prose">
+        <SectionLabel>WHAT CHANGES — AND WHAT DOESN’T</SectionLabel>
+        <h2>A seasonal view. Not future measurements.</h2>
+        <p>{snapshot.outlook?.limitations}</p>
+        <p>
+          The rolling-day PM2.5 index uses the analog median curve, including
+          the preceding 24 hours. Traffic and weather perturbations are not
+          applied to these empirical curves. The ridge model’s causal-looking
+          contribution bars are intentionally unavailable here.
+        </p>
+        <p>
+          Station evidence years: {station.outlook?.sourceYears.join(", ")}.
+          Latest actual reading was{" "}
+          {station.outlook
+            ? fullDate(station.outlook.latestObservedAt)
+            : "unavailable"}
+          ; it is not treated as the Diwali-night observation.
+        </p>
+        <a className="text-link" href="/report-card">
+          Inspect the rolling backtest <ArrowUpRight size={14} />
+        </a>
+      </section>
     </>
   );
 }

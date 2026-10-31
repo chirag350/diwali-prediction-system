@@ -35,6 +35,10 @@ export function summary(s: Station) {
   };
 }
 export function scenario(s: Station, traffic: number, wind: number) {
+  if (s.outlook)
+    throw Error(
+      "Historical analog outlooks do not support causal input scenarios",
+    );
   return s.points.map((p) => ({
     ...p,
     ...predict(model, {
@@ -46,6 +50,10 @@ export function scenario(s: Station, traffic: number, wind: number) {
   }));
 }
 export function attribution(s: Station, hour: number) {
+  if (s.outlook)
+    throw Error(
+      "Historical analog outlooks do not have ridge feature attributions",
+    );
   const p = predict(model, { ...s.input, horizon: hour });
   const groups: Record<string, number> = {
     Background: 0,

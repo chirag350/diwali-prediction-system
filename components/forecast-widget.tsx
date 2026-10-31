@@ -18,7 +18,9 @@ export default function ForecastWidget({ initial }: { initial: Snapshot }) {
     <main className="widget-shell">
       <div className="widget-heading">
         <Brand small />
-        <Badge tone="orange">REPLAY {initial.year}</Badge>
+        <Badge tone="orange">
+          {initial.kind === "outlook" ? "OUTLOOK" : "REPLAY"} {initial.year}
+        </Badge>
       </div>
       <h1>{s.name}</h1>
       <p>
@@ -31,10 +33,15 @@ export default function ForecastWidget({ initial }: { initial: Snapshot }) {
       <p>
         AQI estimate · PM2.5 only · trailing 24h
         <br />
-        Hourly PM2.5: {Math.round(p.p50)} µg/m³ · range {Math.round(p.p10)}–
-        {Math.round(p.p90)}
+        Hourly PM2.5: {Math.round(p.p50)} µg/m³ ·{" "}
+        {initial.kind === "outlook" ? "historical spread" : "range"}{" "}
+        {Math.round(p.p10)}–{Math.round(p.p90)}
       </p>
-      <ForecastChart points={s.points} compact />
+      <ForecastChart
+        points={s.points}
+        compact
+        historical={initial.kind === "outlook"}
+      />
       <div className="widget-summary">
         <span>48h forecast peak</span>
         <strong>{Math.round(high.p50)} µg/m³</strong>
@@ -47,9 +54,12 @@ export default function ForecastWidget({ initial }: { initial: Snapshot }) {
         Explore your air ↗
       </Link>
       <small>
-        Archived candidate model. Not a live reading.
+        {initial.kind === "outlook"
+          ? "Historical-analog outlook. Not a live reading."
+          : "Archived candidate model. Not a live reading."}
         <br />
-        Issued {dateLabel(s.origin, true)}, {hourLabel(s.origin)} IST.
+        {initial.kind === "outlook" ? "Window starts" : "Issued"}{" "}
+        {dateLabel(s.origin, true)}, {hourLabel(s.origin)} IST.
       </small>
     </main>
   );

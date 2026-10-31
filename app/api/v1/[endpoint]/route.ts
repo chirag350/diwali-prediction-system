@@ -25,7 +25,7 @@ export async function GET(
 ) {
   const { endpoint } = await params;
   const url = new URL(request.url);
-  const id = url.searchParams.get("snapshot") ?? "latest";
+  const id = url.searchParams.get("snapshot") ?? "2026-during";
   if (endpoint === "report-card")
     return response({
       ...registry.model,
@@ -110,6 +110,11 @@ export async function GET(
           snapshot: snap.id,
           model: snap.modelVersion,
           candidate: true,
+          kind: snap.kind ?? "replay",
+          method: snap.outlook?.method ?? "Ridge regression",
+          issuedAt: snap.issuedAt,
+          intervalInterpretation:
+            snap.outlook?.interval ?? "Nominal 80% interval",
           provenance: "MODELLED",
           ...summary(s),
         },
@@ -130,6 +135,19 @@ export async function GET(
       const h = Number(url.searchParams.get("hour") ?? 1);
       if (!Number.isInteger(h) || h < 1 || h > 72)
         return response({ error: "hour must be 1–72" }, 400);
+      if (snap.kind === "outlook")
+        return response(
+          {
+            method: snap.outlook?.method,
+            sourceYears: s.outlook?.sourceYears,
+            minimumHourlySamples: s.outlook?.minimumHourlySamples,
+            message:
+              "Historical median outlook; regression feature contributions do not apply.",
+            point: s.points[h - 1],
+          },
+          200,
+          headers,
+        );
       return response(attribution(s, h), 200, headers);
     }
     if (endpoint === "reports") return response(await community(s.h3));
@@ -147,7 +165,7 @@ export async function GET(
               h3: s.h3,
               pm25: s.points[0].p50,
               provenance: "MODELLED",
-              issued_at: s.origin,
+              issued_at: snap.kind === "outlook" ? snap.issuedAt : s.origin,
             },
           })),
         });
@@ -237,10 +255,18 @@ export async function POST(
         );
       }
     }
-    const snap = await getSnapshot(body.snapshot ?? "latest");
+    const snap = await getSnapshot(body.snapshot ?? "2026-during");
     const station = findStation(snap, body.station ?? null, body.h3 ?? null);
     if (!station) return response({ error: "Unknown station" }, 404);
     if (endpoint === "scenario") {
+      if (snap.kind === "outlook")
+        return response(
+          {
+            error:
+              "2026 is a historical-analog outlook, not a causal traffic or weather simulation. Select a historical ridge replay.",
+          },
+          409,
+        );
       const traffic = Number(body.traffic ?? 0),
         wind = Number(body.wind ?? 1);
       if (
@@ -266,11 +292,14 @@ export async function POST(
           .slice(0, 300)
           .toLowerCase(),
         sum = summary(station);
-      const answer = /why|driver|cause/.test(q)
-        ? `${station.name}: the regression combines recent pollution, weather, fires, traffic proxies and timing. These statistical contributions do not establish causal source shares.`
-        : /safe|walk|outside|window/.test(q)
-          ? `The lowest modelled 3-hour window for ${station.name} starts at ${sum.bestWindow.start.time}, averaging ${Math.round(sum.bestWindow.mean)} µg/m³. Lower exposure does not mean risk-free. Follow official local guidance.`
-          : `${station.name} has a modelled peak of ${Math.round(sum.peak.p50)} µg/m³ at ${sum.peak.time}. The candidate model forecasts from archived inputs issued ${station.origin}.`;
+      const answer =
+        snap.kind === "outlook"
+          ? `${station.name}’s 2026 historical-analog outlook has a median peak of ${Math.round(sum.peak.p50)} µg/m³ at ${sum.peak.time}. It uses earlier festival seasons, not future observations or weather. The shaded range is historical spread, not calibrated confidence. Forecast method: ${snap.modelVersion}.`
+          : /why|driver|cause/.test(q)
+            ? `${station.name}: the regression combines recent pollution, weather, fires, traffic proxies and timing. These statistical contributions do not establish causal source shares.`
+            : /safe|walk|outside|window/.test(q)
+              ? `The lowest modelled 3-hour window for ${station.name} starts at ${sum.bestWindow.start.time}, averaging ${Math.round(sum.bestWindow.mean)} µg/m³. Lower exposure does not mean risk-free. Follow official local guidance.`
+              : `${station.name} has a modelled peak of ${Math.round(sum.peak.p50)} µg/m³ at ${sum.peak.time}. The candidate model forecasts from archived inputs issued ${station.origin}.`;
       return response({
         answer,
         source: {

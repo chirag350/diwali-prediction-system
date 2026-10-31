@@ -387,7 +387,11 @@ export default function AirMap({
         <span className="pulse-dot" />
         <div>
           <strong>{s.name}</strong>
-          <span>Station-supported estimate</span>
+          <span>
+            {s.outlook
+              ? "Historical-analog outlook"
+              : "Station-supported estimate"}
+          </span>
         </div>
       </div>
       <div className="map-wind">

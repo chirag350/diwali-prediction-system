@@ -74,6 +74,7 @@ import {
   ReportCardView,
   StatusView,
   WhyView,
+  OutlookEvidence,
 } from "./views";
 const AirMap = dynamic(() => import("./air-map"), {
   ssr: false,
@@ -214,31 +215,37 @@ const headings: Record<string, [string, string]> = {
 const tourSteps = [
   {
     view: "",
-    title: "Start with your neighborhood",
-    text: "Real station inputs and a custom ridge model. The candidate forecast is always labelled.",
+    snapshot: "2026-during",
+    title: "2026, with the evidence in view",
+    text: "Start with the 2026 festival outlook: historical-analog medians, a real H3 map, and explicit uncertainty limits. This is not a live forecast.",
   },
   {
     view: "time-machine",
+    snapshot: "2025-during",
     title: "Before, during, after",
     text: "Replay five Diwalis. Compare the model with measured PM2.5 at the selected future hour.",
   },
   {
     view: "why",
+    snapshot: "2025-during",
     title: "Open the black box",
     text: "Exact regression contributions add up to the forecast. They are statistical associations, not emissions shares.",
   },
   {
     view: "lab",
+    snapshot: "2025-during",
     title: "Ask a better what-if",
     text: "Perturb traffic and wind inputs and recompute the same model. Scenario estimates are not causal policy forecasts.",
   },
   {
     view: "report-card",
+    snapshot: "2025-during",
     title: "Show the evidence",
-    text: "A held-out 2025 test: 2.92 million pairs, four horizons, and a persistence baseline.",
+    text: "Inspect the analog member’s rolling historical backtests, then the ridge model’s audit. Errors and interval coverage are visible, including where the model fails.",
   },
   {
     view: "authority",
+    snapshot: "2026-during",
     title: "Turn insight into a plan",
     text: "Rank monitored places and export a briefing. Operational deployment and remote alerts require configured services.",
   },
@@ -266,7 +273,7 @@ export default function Dashboard({
     [plotMode, setPlotMode] = useState("forecast"),
     [playing, setPlaying] = useState(false),
     [speed, setSpeed] = useState(1),
-    [year, setYear] = useState(2025),
+    [year, setYear] = useState(initial.year),
     [phase, setPhase] = useState("during"),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
@@ -287,9 +294,15 @@ export default function Dashboard({
     [asking, setAsking] = useState(false),
     [tour, setTour] = useState<number | null>(null);
   const requestId = useRef(0);
+  const tourRestore = useRef<{
+    snapshot: Snapshot;
+    hour: number;
+    selected: string;
+  } | null>(null);
   const initialQuery = useRef<string | null>(null);
   const readyForUrl = useRef(false);
   const activeView = tour === null ? view : tourSteps[tour].view;
+  const isOutlook = snapshot.kind === "outlook";
   const station =
     snapshot.stations.find((s) => s.id === selected) ?? snapshot.stations[0];
   const point = station.points[hour];
@@ -337,18 +350,62 @@ export default function Dashboard({
         throw Error("No valid station history for this period.");
       if (request === requestId.current) {
         setSnapshot(next);
+        if (next.id !== "latest") {
+          setYear(next.year);
+          setPhase(next.id.split("-")[1]);
+        }
+        if (next.kind === "outlook") setPlotMode("forecast");
         if (!preserveHour) setHour(0);
         setPlaying(false);
+        return true;
       }
+      return false;
     } catch (e) {
       if (request === requestId.current)
         setError(
           e instanceof Error ? e.message : "Unable to load this forecast.",
         );
+      return false;
     } finally {
       if (request === requestId.current) setBusy(false);
     }
   }, []);
+  const endTour = useCallback(() => {
+    requestId.current++;
+    setBusy(false);
+    setTour(null);
+    setPlaying(false);
+    setError("");
+    const saved = tourRestore.current;
+    if (saved) {
+      setSnapshot(saved.snapshot);
+      setHour(saved.hour);
+      setSelected(saved.selected);
+      setYear(saved.snapshot.year);
+      setPhase(saved.snapshot.id.split("-")[1] ?? "during");
+      tourRestore.current = null;
+    }
+  }, []);
+  const goToTourStep = useCallback(
+    async (step: number) => {
+      if (step < 0 || step >= tourSteps.length) return;
+      setPlaying(false);
+      const required = tourSteps[step].snapshot;
+      if (snapshot.id !== required && !(await loadSnapshot(required))) return;
+      setSearchOpen(false);
+      setAlertOpen(false);
+      setAssistant(false);
+      setMobile(false);
+      setTour(step);
+      window.scrollTo({ top: 0, behavior: "instant" });
+    },
+    [snapshot.id, loadSnapshot],
+  );
+  const startTour = useCallback(async () => {
+    if (busy) return;
+    tourRestore.current = { snapshot, hour, selected };
+    await goToTourStep(0);
+  }, [busy, snapshot, hour, selected, goToTourStep]);
   useEffect(() => {
     if (initialQuery.current === null)
       initialQuery.current = window.location.search;
@@ -406,34 +463,32 @@ export default function Dashboard({
         setSearchOpen(false);
         setAssistant(false);
         setAlertOpen(false);
-        setTour(null);
+        if (tour !== null) endTour();
       }
       if (
         e.key.toLowerCase() === "j" &&
+        !e.metaKey &&
+        !e.ctrlKey &&
+        !e.altKey &&
+        !e.repeat &&
         !(e.target instanceof HTMLInputElement) &&
-        !(e.target instanceof HTMLTextAreaElement)
-      )
-        setTour((t) => (t === null ? 0 : null));
+        !(e.target instanceof HTMLTextAreaElement) &&
+        !(e.target instanceof HTMLSelectElement) &&
+        !(e.target instanceof HTMLElement && e.target.isContentEditable)
+      ) {
+        e.preventDefault();
+        if (tour === null) void startTour();
+        else endTour();
+      }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, []);
+  }, [tour, startTour, endTour]);
   useEffect(() => {
     if (!playing) return;
     const timer = setInterval(() => setHour((h) => (h + 1) % 72), 1300 / speed);
     return () => clearInterval(timer);
   }, [playing, speed]);
-  useEffect(() => {
-    if (tour === null) return;
-    const timer = setTimeout(
-      () =>
-        setTour((t) =>
-          t === null || t === tourSteps.length - 1 ? null : t + 1,
-        ),
-      30000,
-    );
-    return () => clearTimeout(timer);
-  }, [tour]);
   useEffect(() => {
     if (!toast) return;
     const timer = setTimeout(() => setToast(""), 4500);
@@ -597,7 +652,11 @@ export default function Dashboard({
     <section className="card forecast-chart-card">
       <CardHead
         title="A little foresight goes a long way."
-        subtitle="72-hour PM2.5 forecast · µg/m³"
+        subtitle={
+          isOutlook
+            ? "72-hour festival outlook · historical analogs · µg/m³"
+            : "72-hour PM2.5 forecast · µg/m³"
+        }
       >
         <div className="chart-key">
           <span>
@@ -606,9 +665,9 @@ export default function Dashboard({
           </span>
           <span>
             <i className="key-band" />
-            80% interval
+            {isOutlook ? "Historical P10–P90 spread" : "80% interval"}
           </span>
-          {activeView === "time-machine" && (
+          {activeView === "time-machine" && !isOutlook && (
             <span>
               <i className="key-dot" />
               Measured
@@ -618,9 +677,10 @@ export default function Dashboard({
       </CardHead>
       <ForecastChart
         points={station.points}
+        historical={isOutlook}
         selected={hour}
         onSelect={setHour}
-        actual={activeView === "time-machine"}
+        actual={activeView === "time-machine" && !isOutlook}
       />
       <div className="chart-footer">
         <span>
@@ -779,11 +839,13 @@ export default function Dashboard({
       <p className="air-time">
         {dateLabel(point.time)} · {hourLabel(point.time)} IST{" "}
         <Badge tone="green">
-          {displayKind === "actual"
-            ? "MEASURED"
-            : displayKind === "diff"
-              ? "ABS. ERROR"
-              : "MODELLED"}
+          {isOutlook
+            ? "OUTLOOK"
+            : displayKind === "actual"
+              ? "MEASURED"
+              : displayKind === "diff"
+                ? "ABS. ERROR"
+                : "MODELLED"}
         </Badge>
       </p>
       <div className="air-reading">
@@ -828,7 +890,8 @@ export default function Dashboard({
       </div>
       <div className="interval-row">
         <span>
-          PM2.5 forecast range <InfoCircle />
+          {isOutlook ? "Historical PM2.5 spread" : "PM2.5 forecast range"}{" "}
+          <InfoCircle historical={isOutlook} />
         </span>
         <strong>
           {Math.round(point.p10)}–{Math.round(point.p90)} <span>µg/m³</span>
@@ -844,8 +907,10 @@ export default function Dashboard({
         </strong>
       </div>
       <p className="aqi-fine">
-        PM2.5 sub-index, not the official multi-pollutant AQI. This is an
-        archived replay, not today’s air.
+        PM2.5 sub-index, not the official multi-pollutant AQI.{" "}
+        {isOutlook
+          ? "Historical-analog outlook, not live conditions."
+          : "Archived replay, not today’s air."}
       </p>
       <div className="air-summary-row">
         <TrendingUp size={17} />
@@ -881,15 +946,18 @@ export default function Dashboard({
       </button>
       <div className="air-card-foot">
         <span className="tiny-dot" />
-        Candidate model{" "}
+        {isOutlook ? "Historical analogs" : "Candidate model"}{" "}
         <span>
-          Issued {dateLabel(station.origin)}, {hourLabel(station.origin)}
+          {isOutlook ? "Starts" : "Issued"} {dateLabel(station.origin)},{" "}
+          {hourLabel(station.origin)}
         </span>
       </div>
     </section>
   );
   return (
-    <div className={`app-shell ${lite ? "lite-mode" : ""}`}>
+    <div
+      className={`app-shell ${lite ? "lite-mode" : ""} ${tour !== null ? "tour-active" : ""}`}
+    >
       <a href="#main" className="skip-link">
         Skip to content
       </a>
@@ -918,7 +986,11 @@ export default function Dashboard({
                   key={item.id}
                   href={href(item.id)}
                   className={`nav-link ${activeView === item.id ? "active" : ""}`}
-                  onClick={() => setMobile(false)}
+                  onClick={() => {
+                    setMobile(false);
+                    setTour(null);
+                    tourRestore.current = null;
+                  }}
                 >
                   <item.icon size={17} />
                   <span>{hindi ? item.hi : item.label}</span>
@@ -940,7 +1012,11 @@ export default function Dashboard({
             </div>
             <span className="tiny-dot" />
           </div>
-          <button className="judge-link" onClick={() => setTour(0)}>
+          <button
+            className="judge-link"
+            onClick={() => void startTour()}
+            disabled={busy}
+          >
             <MonitorPlay size={16} />
             Take the guided tour <kbd>J</kbd>
           </button>
@@ -1018,10 +1094,49 @@ export default function Dashboard({
               </button>
             </div>
           </div>
+          {activeView === "" && isOutlook && (
+            <section className="festival-banner">
+              <div className="festival-date">
+                <span>NOVEMBER</span>
+                <strong>08</strong>
+                <span>DIWALI 2026</span>
+              </div>
+              <div className="festival-copy">
+                <SectionLabel>THE FESTIVAL, A LITTLE AHEAD</SectionLabel>
+                <h2>More light. A little more foresight.</h2>
+                <p>
+                  Explore the build-up, Diwali night, and the days after.
+                  Grounded in past festivals. Honest about the future.
+                </p>
+                <div>
+                  <Badge tone="green">
+                    {snapshot.stations.length} monitored places
+                  </Badge>
+                  <Badge>2014–2025 historical evidence</Badge>
+                  <Badge>Rolling historical backtest</Badge>
+                </div>
+              </div>
+              <button
+                className="festival-tour"
+                onClick={() => void startTour()}
+                disabled={busy}
+              >
+                <MonitorPlay size={21} />
+                <span>
+                  Show me the story<small>6 steps · at your pace</small>
+                </span>
+                <ArrowUpRight size={17} />
+              </button>
+            </section>
+          )}
           <div className="context-bar">
             <div>
               <Badge tone="orange">
-                {snapshot.id === "latest" ? "ARCHIVED INPUTS" : "REPLAY"}
+                {isOutlook
+                  ? "2026 OUTLOOK"
+                  : snapshot.id === "latest"
+                    ? "ARCHIVED INPUTS"
+                    : "REPLAY"}
               </Badge>
               <strong>
                 {snapshot.id === "latest"
@@ -1034,7 +1149,11 @@ export default function Dashboard({
               <span>{snapshot.stations.length} monitored places</span>
             </div>
             <div className="context-actions">
-              <span>Not a live feed</span>
+              <span>
+                {isOutlook
+                  ? "Historical analogs · not live"
+                  : "Not a live feed"}
+              </span>
               <select
                 aria-label="Choose data period"
                 value={snapshot.id === "latest" ? "latest" : year}
@@ -1045,9 +1164,10 @@ export default function Dashboard({
                 }
               >
                 <option value="latest">Latest collected</option>
-                {[2025, 2024, 2023, 2022, 2021].map((y) => (
+                {[2026, 2025, 2024, 2023, 2022, 2021].map((y) => (
                   <option key={y} value={y}>
                     Diwali {y}
+                    {y === 2026 ? " · Outlook" : ""}
                   </option>
                 ))}
               </select>
@@ -1056,7 +1176,9 @@ export default function Dashboard({
           <div className="model-caution">
             <ShieldCheck size={13} />
             <span>
-              Experimental v1: severe Diwali peaks are underestimated.{" "}
+              {isOutlook
+                ? "2026 is an analog-based seasonal outlook. Historical spread is not a calibrated prediction interval."
+                : "Experimental v1: severe Diwali peaks are underestimated."}{" "}
               <Link href="/report-card">See the model recheck ↗</Link>
             </span>
           </div>
@@ -1076,7 +1198,8 @@ export default function Dashboard({
             activeView === "time-machine" ||
             activeView === "my-air") && (
             <>
-              {activeView === "time-machine" && (
+              {(activeView === "time-machine" ||
+                (isOutlook && ["", "map", "my-air"].includes(activeView))) && (
                 <div className="replay-toolbar">
                   <div className="phase-tabs">
                     {[
@@ -1120,12 +1243,24 @@ export default function Dashboard({
                       Forecast
                     </button>
                     <button
+                      disabled={isOutlook}
+                      title={
+                        isOutlook
+                          ? "2026 has no future observations"
+                          : "Show measurements"
+                      }
                       onClick={() => setPlotMode("actual")}
                       className={plotMode === "actual" ? "active" : ""}
                     >
                       Actual
                     </button>
                     <button
+                      disabled={isOutlook}
+                      title={
+                        isOutlook
+                          ? "2026 cannot yet be scored"
+                          : "Show forecast error"
+                      }
                       onClick={() => setPlotMode("diff")}
                       className={plotMode === "diff" ? "active" : ""}
                     >
@@ -1213,11 +1348,13 @@ export default function Dashboard({
                   </div>
                   {activeView === "time-machine" && (
                     <InfoNote>
-                      {snapshot.year <= 2023
-                        ? "This replay uses years included in fitting; it is an in-sample demonstration."
-                        : snapshot.year === 2024
-                          ? "This replay uses the uncertainty-calibration year; it is not an untouched test."
-                          : "2025 was held out from fitting and calibration. These are retrospective forecasts, reconstructed from archived inputs."}{" "}
+                      {isOutlook
+                        ? "2026 observations do not exist yet. This curve uses festival-aligned historical medians, not future measurements or weather. Actual and difference views are disabled."
+                        : snapshot.year <= 2023
+                          ? "This replay uses years included in fitting; it is an in-sample demonstration."
+                          : snapshot.year === 2024
+                            ? "This replay uses the uncertainty-calibration year; it is not an untouched test."
+                            : "2025 was held out from fitting and calibration. These are retrospective forecasts, reconstructed from archived inputs."}{" "}
                       Actual and error layers use only available measurements.
                       Cells without nearby measurements are grey; consult the
                       station chart for gaps.
@@ -1305,8 +1442,35 @@ export default function Dashboard({
               )}
             </>
           )}
-          {activeView === "why" && <WhyView station={station} hour={hour} />}
-          {activeView === "lab" && (
+          {activeView === "why" &&
+            (isOutlook ? (
+              <OutlookEvidence
+                snapshot={snapshot}
+                station={station}
+                hour={hour}
+              />
+            ) : (
+              <WhyView station={station} hour={hour} />
+            ))}
+          {activeView === "lab" && isOutlook && (
+            <section className="card prose">
+              <SectionLabel>CHOOSE THE RIGHT TOOL</SectionLabel>
+              <h2>An outlook is not a policy experiment.</h2>
+              <p>
+                The 2026 curve is a historical-analog median. Traffic and wind
+                changes cannot be applied as causal effects to this curve. The
+                regression scenario lab remains available for historical replay.
+              </p>
+              <button
+                className="primary-button"
+                style={{ marginTop: 20 }}
+                onClick={() => loadSnapshot("2025-during")}
+              >
+                Open the 2025 scenario lab <ArrowUpRight size={14} />
+              </button>
+            </section>
+          )}
+          {activeView === "lab" && !isOutlook && (
             <LabView
               snapshot={snapshot}
               station={station}
@@ -1613,7 +1777,12 @@ export default function Dashboard({
         </div>
       )}
       {tour !== null && (
-        <div className="tour-card" role="dialog" aria-label="Guided tour">
+        <div
+          className="tour-card"
+          role="dialog"
+          aria-labelledby="tour-title"
+          aria-describedby="tour-description"
+        >
           <div className="tour-top">
             <span>
               <MonitorPlay size={14} />
@@ -1622,7 +1791,7 @@ export default function Dashboard({
             <button
               className="icon-button"
               aria-label="End tour"
-              onClick={() => setTour(null)}
+              onClick={endTour}
             >
               <X size={16} />
             </button>
@@ -1633,34 +1802,57 @@ export default function Dashboard({
                 key={i}
                 aria-label={`Tour step ${i + 1}`}
                 className={i === tour ? "active" : ""}
-                onClick={() => setTour(i)}
+                disabled={busy}
+                aria-current={i === tour ? "step" : undefined}
+                onClick={() => void goToTourStep(i)}
               />
             ))}
           </div>
-          <h3>{tourSteps[tour].title}</h3>
-          <p>{tourSteps[tour].text}</p>
+          <h3 id="tour-title">{tourSteps[tour].title}</h3>
+          <p id="tour-description" aria-live="polite">
+            {tourSteps[tour].text}
+          </p>
           <div className="tour-bottom">
             <span>
-              {tour + 1} of {tourSteps.length} · advances in 30s
+              Step {tour + 1} of {tourSteps.length}
             </span>
-            <button
-              onClick={() =>
-                setTour(tour === tourSteps.length - 1 ? null : tour + 1)
-              }
-            >
-              {tour === tourSteps.length - 1 ? "Finish" : "Next"}
-              <ArrowRight size={15} />
-            </button>
+            <div className="tour-navigation">
+              <button
+                className="tour-previous"
+                disabled={busy || tour === 0}
+                onClick={() => void goToTourStep(tour - 1)}
+              >
+                Back
+              </button>
+              <button
+                disabled={busy}
+                onClick={() => {
+                  if (tour === tourSteps.length - 1) endTour();
+                  else void goToTourStep(tour + 1);
+                }}
+              >
+                {busy
+                  ? "Loading…"
+                  : tour === tourSteps.length - 1
+                    ? "Finish"
+                    : "Next"}
+                <ArrowRight size={15} />
+              </button>
+            </div>
           </div>
         </div>
       )}
     </div>
   );
 }
-function InfoCircle() {
+function InfoCircle({ historical = false }: { historical?: boolean }) {
   return (
     <span
-      title="Nominal 80% prediction interval, calibrated on 2024. Actual coverage is measured on 2025."
+      title={
+        historical
+          ? "Historical 10th to 90th percentile range across earlier Diwali seasons. Not a calibrated prediction interval."
+          : "Nominal 80% prediction interval, calibrated on 2024. Actual coverage is measured on 2025."
+      }
       className="info-circle"
     >
       i

@@ -126,3 +126,13 @@ TRAINING_OUTPUT=training/output/recheck-v2 TRAINING_CACHE_DIR=training/output/ca
 ```
 
 This does not replace the app model automatically. See `training/AUDIT.md` and the report-card audit section before using forecasts for decisions.
+
+## Diwali 2026 outlook and hackathon demo
+
+The app now opens on **8 November 2026** with build-up, burst and hangover views. This is a separate `festival-analog-v1` member: each station/hour uses the median of at least three earlier festival seasons, aligned to Diwali. Source years and sample counts are visible under Understand the why. Every 2026 `actual` is null. The historical P10–P90 range is empirical spread, **not calibrated confidence**; future weather is not available or invented.
+
+`bun run data:outlook` rebuilds the three future snapshots from the local training cache; `bun run data:build` rebuilds ridge replay snapshots and then the 2026 outlook. Both need the collected source data/cache. Running the site needs only the bundled artifacts.
+
+The analog method has rolling prior-year-only backtests for 2023–2025. On the 2025 festival replay it reduces MAE by 25.0% versus persistence, with 73.1% empirical spread coverage. Phase windows overlap, so forecast pairs are not independent. These retrospective results do not guarantee 2026 skill. Inspect `data/bundled/outlook-backtest.json` and the public report card.
+
+Use the [three-minute demo script](./docs/DEMO-SCRIPT.md). 2026 regression contribution bars and causal scenario controls are disabled because they do not apply to a historical-median curve. Switch to a prior year to use the ridge scenario lab. The original ridge model remains experimental and retains its audit warning.

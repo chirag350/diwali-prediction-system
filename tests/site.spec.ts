@@ -4,7 +4,7 @@ test("overview renders real candidate forecasts and supports neighborhood search
 }, testInfo) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto("/");
+  await page.goto("/?snapshot=2025-during");
   await expect(
     page.getByRole("heading", { name: "The air, a little ahead." }),
   ).toBeVisible();
@@ -43,7 +43,7 @@ test("overview renders real candidate forecasts and supports neighborhood search
 test("replay, report card, explanation and scenarios work", async ({
   page,
 }) => {
-  await page.goto("/time-machine");
+  await page.goto("/time-machine?snapshot=2025-during");
   await page.getByRole("button", { name: "Build-up T−48h" }).click();
   await expect(page.locator(".context-bar")).toContainText("Build-up");
   await expect(page.locator(".loading-bar")).toHaveCount(0);
@@ -61,10 +61,10 @@ test("replay, report card, explanation and scenarios work", async ({
       .locator("tbody tr"),
   ).toHaveCount(4);
   await expect(page.locator(".metric-card").first()).toContainText("20.26");
-  await page.goto("/why");
+  await page.goto("/why?snapshot=2025-during");
   await expect(page.locator(".contribution-row")).toHaveCount(6);
   await expect(page.locator(".contribution-sum")).not.toContainText("NaN");
-  await page.goto("/lab");
+  await page.goto("/lab?snapshot=2025-during");
   await expect(
     page.getByRole("heading", { name: "A different set of possibilities." }),
   ).toBeVisible();

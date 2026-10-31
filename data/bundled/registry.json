@@ -127,6 +127,30 @@
       "phase": "Hangover",
       "issuedAt": "2025-10-21T11:30:00.000Z",
       "stations": 45
+    },
+    {
+      "id": "2026-before",
+      "title": "Diwali 2026 outlook",
+      "year": 2026,
+      "phase": "Build-up",
+      "issuedAt": "2026-10-31T23:39:11.105Z",
+      "stations": 45
+    },
+    {
+      "id": "2026-during",
+      "title": "Diwali 2026 outlook",
+      "year": 2026,
+      "phase": "Burst",
+      "issuedAt": "2026-10-31T23:39:11.105Z",
+      "stations": 45
+    },
+    {
+      "id": "2026-after",
+      "title": "Diwali 2026 outlook",
+      "year": 2026,
+      "phase": "Hangover",
+      "issuedAt": "2026-10-31T23:39:11.105Z",
+      "stations": 44
     }
   ],
   "model": {
