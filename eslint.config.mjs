@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Immutable upstream map-worker distribution, with its BSD license.
+    "public/vendor/**",
   ]),
 ]);
 

@@ -1,0 +1,186 @@
+{
+  "snapshots": [
+    {
+      "id": "latest",
+      "title": "Latest collected",
+      "year": 2026,
+      "phase": "Build-up",
+      "issuedAt": "2026-09-30T18:30:00.000Z",
+      "stations": 76
+    },
+    {
+      "id": "2021-before",
+      "title": "Diwali 2021",
+      "year": 2021,
+      "phase": "Build-up",
+      "issuedAt": "2021-11-02T11:30:00.000Z",
+      "stations": 57
+    },
+    {
+      "id": "2021-during",
+      "title": "Diwali 2021",
+      "year": 2021,
+      "phase": "Burst",
+      "issuedAt": "2021-11-04T11:30:00.000Z",
+      "stations": 57
+    },
+    {
+      "id": "2021-after",
+      "title": "Diwali 2021",
+      "year": 2021,
+      "phase": "Hangover",
+      "issuedAt": "2021-11-05T11:30:00.000Z",
+      "stations": 38
+    },
+    {
+      "id": "2022-before",
+      "title": "Diwali 2022",
+      "year": 2022,
+      "phase": "Build-up",
+      "issuedAt": "2022-10-22T11:30:00.000Z",
+      "stations": 54
+    },
+    {
+      "id": "2022-during",
+      "title": "Diwali 2022",
+      "year": 2022,
+      "phase": "Burst",
+      "issuedAt": "2022-10-24T11:30:00.000Z",
+      "stations": 56
+    },
+    {
+      "id": "2022-after",
+      "title": "Diwali 2022",
+      "year": 2022,
+      "phase": "Hangover",
+      "issuedAt": "2022-10-25T11:30:00.000Z",
+      "stations": 58
+    },
+    {
+      "id": "2023-before",
+      "title": "Diwali 2023",
+      "year": 2023,
+      "phase": "Build-up",
+      "issuedAt": "2023-11-10T11:30:00.000Z",
+      "stations": 53
+    },
+    {
+      "id": "2023-during",
+      "title": "Diwali 2023",
+      "year": 2023,
+      "phase": "Burst",
+      "issuedAt": "2023-11-12T11:30:00.000Z",
+      "stations": 59
+    },
+    {
+      "id": "2023-after",
+      "title": "Diwali 2023",
+      "year": 2023,
+      "phase": "Hangover",
+      "issuedAt": "2023-11-13T11:30:00.000Z",
+      "stations": 56
+    },
+    {
+      "id": "2024-before",
+      "title": "Diwali 2024",
+      "year": 2024,
+      "phase": "Build-up",
+      "issuedAt": "2024-10-29T11:30:00.000Z",
+      "stations": 59
+    },
+    {
+      "id": "2024-during",
+      "title": "Diwali 2024",
+      "year": 2024,
+      "phase": "Burst",
+      "issuedAt": "2024-10-31T11:30:00.000Z",
+      "stations": 61
+    },
+    {
+      "id": "2024-after",
+      "title": "Diwali 2024",
+      "year": 2024,
+      "phase": "Hangover",
+      "issuedAt": "2024-11-01T11:30:00.000Z",
+      "stations": 59
+    },
+    {
+      "id": "2025-before",
+      "title": "Diwali 2025",
+      "year": 2025,
+      "phase": "Build-up",
+      "issuedAt": "2025-10-18T11:30:00.000Z",
+      "stations": 57
+    },
+    {
+      "id": "2025-during",
+      "title": "Diwali 2025",
+      "year": 2025,
+      "phase": "Burst",
+      "issuedAt": "2025-10-20T11:30:00.000Z",
+      "stations": 61
+    },
+    {
+      "id": "2025-after",
+      "title": "Diwali 2025",
+      "year": 2025,
+      "phase": "Hangover",
+      "issuedAt": "2025-10-21T11:30:00.000Z",
+      "stations": 45
+    }
+  ],
+  "model": {
+    "version": "ridge-national-v1",
+    "trainedAt": "2026-10-31T22:48:47.666Z",
+    "stations": 600,
+    "hourlyRows": 22501667,
+    "trainingPairs": 9651410,
+    "testPairs": 2921283,
+    "metrics": [
+      {
+        "bucket": "1–6",
+        "n": 247364,
+        "mae": 14.312121318481514,
+        "rmse": 24.624845775266017,
+        "bias": 0.9363513943776178,
+        "persistenceMae": 14.821549201446652,
+        "skill": 0.03437075814688895,
+        "coverage": 0.8252413447389273,
+        "calibrationN": 253639
+      },
+      {
+        "bucket": "7–24",
+        "n": 744307,
+        "mae": 18.95736015494819,
+        "rmse": 32.25677557191453,
+        "bias": 3.2050671480164548,
+        "persistenceMae": 20.939339769522064,
+        "skill": 0.09465339577987619,
+        "coverage": 0.8220640139082395,
+        "calibrationN": 761376
+      },
+      {
+        "bucket": "25–48",
+        "n": 970747,
+        "mae": 20.868828999900387,
+        "rmse": 35.7626858684213,
+        "bias": 2.9562889086896886,
+        "persistenceMae": 22.466639627351512,
+        "skill": 0.07111925298814625,
+        "coverage": 0.8337012630479415,
+        "calibrationN": 995468
+      },
+      {
+        "bucket": "49–72",
+        "n": 958865,
+        "mae": 22.189124970593227,
+        "rmse": 36.71763848806006,
+        "bias": 4.103349742276108,
+        "persistenceMae": 24.266762736847024,
+        "skill": 0.08561660196640397,
+        "coverage": 0.8252871884989024,
+        "calibrationN": 978483
+      }
+    ]
+  }
+}

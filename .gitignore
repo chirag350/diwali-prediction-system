@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local ML data caches and training artifacts
+/training/output/
+/.local-data/
+/training/output-run.log
+/test-results/
+/playwright-report/
+!.env.example
