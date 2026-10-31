@@ -5141,3 +5141,52 @@ tbody tr:hover {
 .has-basemap .river-label {
   display: none;
 }
+.air-metric-toggle {
+  margin-top: 13px;
+  display: inline-flex;
+}
+.air-metric-toggle button {
+  font-size: 9px;
+  padding: 6px 10px;
+}
+.concentration-detail {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 9px;
+  padding-top: 13px;
+}
+.concentration-detail > span {
+  color: var(--muted);
+}
+.concentration-detail strong {
+  font-weight: 500;
+}
+.aqi-fine {
+  font-size: 8px;
+  line-height: 1.7;
+  color: var(--muted);
+  margin-top: 10px;
+}
+.air-card .air-reading {
+  margin-top: 16px;
+}
+.overview-grid .map-card {
+  min-height: 630px;
+}
+.model-caution {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--orange);
+  padding: 0 3px;
+  margin: -6px 0 17px;
+}
+.model-caution svg {
+  margin-top: 1px;
+}
+.model-caution a {
+  text-decoration: underline;
+}

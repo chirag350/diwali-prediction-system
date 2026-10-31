@@ -1,4 +1,5 @@
-import { mkdir, readFile, writeFile, stat } from "node:fs/promises";
+import { mkdir, readFile, writeFile, stat, readdir } from "node:fs/promises";
+import { sampleHorizon } from "./sampling";
 import path from "node:path";
 import { csv, files, num, ist } from "./io";
 import {
@@ -102,7 +103,32 @@ async function main() {
     `Preparing ${grouped.size} stations (${scope}); immutable source files remain outside repo.`,
   );
   const caches: string[] = [];
-  for (const [id, paths] of grouped) {
+  if (process.argv.includes("--reuse-cache")) {
+    const cacheRoot =
+      process.env.TRAINING_CACHE_DIR ?? path.resolve("training/output/cache");
+    for (const file of await readdir(cacheRoot)) {
+      const id = file.replace(/\.json$/, "");
+      if (!stations.has(id) || !file.endsWith(".json")) continue;
+      const location = path.join(cacheRoot, file);
+      const cache: Cache = JSON.parse(await readFile(location, "utf8"));
+      caches.push(location);
+      audit.stations++;
+      audit.hourlyRows += cache.rows.length;
+      const metadata = await stat(location);
+      audit.files.push({
+        path: location,
+        size: metadata.size,
+        mtime: metadata.mtime.toISOString(),
+      });
+    }
+    audit.notes.push(
+      "Reused prepared hourly cache. Hash-v2 horizon sampling removes clock-hour aliasing. 2025 is a previously examined diagnostic year, not a fresh test.",
+    );
+    console.log(`Reusing ${caches.length} station caches`);
+  }
+  for (const [id, paths] of process.argv.includes("--reuse-cache")
+    ? []
+    : grouped) {
     const s = stations.get(id)!;
     const hourly = new Map<number, Map<number, number>>();
     for (const f of paths.sort()) {
@@ -191,7 +217,7 @@ async function main() {
     path.join(output, "data-audit.json"),
     JSON.stringify(audit, null, 2),
   );
-  // Each origin contributes one deterministically rotated horizon (1..72); no recursive target leakage.
+  // Each origin contributes one deterministic hashed horizon; all origin clock hours can enter each bucket.
   async function* examples() {
     for (const file of caches) {
       const { station: s, rows }: Cache = JSON.parse(
@@ -199,7 +225,7 @@ async function main() {
       );
       const map = new Map(rows.map((r) => [r.t, r]));
       for (const r of rows) {
-        const h = 1 + (((Math.floor(r.t) % 72) + 72) % 72),
+        const h = sampleHorizon(r.t, s.station_id),
           target = map.get(r.t + h),
           lag = map.get(r.t - 24);
         if (!target || !lag) continue;
@@ -244,7 +270,7 @@ async function main() {
     count: 0,
   }));
   console.log(
-    "Fitting ridge: training <=2023; calibration 2024; untouched test 2025; 2026 excluded from fit.",
+    "Fitting ridge: training <=2023; calibration 2024; diagnostic test 2025; 2026 excluded from fit.",
   );
   for await (const e of examples()) {
     if (e.year > 2023 || e.x.some((v) => !Number.isFinite(v))) continue;

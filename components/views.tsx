@@ -35,6 +35,7 @@ import {
   peak,
 } from "../lib/air";
 import modelJson from "../models/national-v1.json";
+import modelAudit from "../data/bundled/model-audit.json";
 import { predict, type Artifact } from "../training/model";
 import { ForecastChart } from "./forecast-chart";
 import { Badge, CardHead, InfoNote, SectionLabel } from "./ui";
@@ -521,6 +522,47 @@ export function ReportCardView({ registry }: { registry: Registry }) {
     coverage = m.reduce((a, b) => a + b.n * b.coverage, 0) / total;
   return (
     <>
+      <div className="error-banner" role="status">
+        <span>
+          <strong>Model recheck: peak forecasts are unreliable.</strong> The v1
+          horizon sampler is biased by time of day. Below are historical
+          national metrics, not validation of Delhi Diwali peaks.
+        </span>
+      </div>
+      <section className="card table-card">
+        <CardHead
+          title="What the Diwali recheck found"
+          subtitle="2025 burst replay · measured targets, in µg/m³ · overlapping replay pairs"
+        />
+        <div className="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Observed PM2.5</th>
+                <th>Pairs</th>
+                <th>Mean prediction</th>
+                <th>Mean measured</th>
+                <th>MAE</th>
+                <th>80% band coverage</th>
+              </tr>
+            </thead>
+            <tbody>
+              {modelAudit.results
+                .filter((r) => r.snapshot === "2025-during")
+                .map((r) => (
+                  <tr key={r.stratum}>
+                    <td>{r.stratum}</td>
+                    <td>{r.n}</td>
+                    <td>{r.predictedMean.toFixed(1)}</td>
+                    <td>{r.observedMean.toFixed(1)}</td>
+                    <td>{r.mae.toFixed(1)}</td>
+                    <td>{(r.coverage * 100).toFixed(1)}%</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
       <div className="report-hero">
         <div>
           <Badge tone="green">
@@ -1482,9 +1524,10 @@ export function StatusView({
             require configuration.
           </p>
           <p>
-            The service worker caches the app and previously visited forecast
-            requests. Map tiles still need a network; an H3 schematic remains
-            available when the base map cannot load.
+            Offline navigation caching is disabled. The legacy service worker is
+            retired so failed routes cannot be replaced by the home page. Map
+            tiles still need a network; an H3 schematic remains available when
+            the base map cannot load.
           </p>
           <a
             className="text-link"

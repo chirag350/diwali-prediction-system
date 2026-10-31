@@ -1,3 +1,5 @@
+> **Superseded interpretation:** A later [model audit](./AUDIT.md) found time-of-day bias in horizon sampling and major Diwali peak errors. These national metrics describe the original restricted sampler; they are not evidence of reliable festival forecasts.
+
 # First national model evaluation
 
 Training completed successfully across 600 stations and 22,501,667 valid hourly observations. Fitting used 9,651,410 origin/target pairs through 2023; calibration used 2024; testing used 2,921,283 pairs from 2025.

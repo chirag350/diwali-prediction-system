@@ -8,6 +8,7 @@ import {
 } from "../../../../server/forecast";
 import { community, contribute, device } from "../../../../server/community";
 import { isValidCell, cellToLatLng } from "h3-js";
+import modelAudit from "../../../../data/bundled/model-audit.json";
 import { bestWindow } from "../../../../lib/air";
 const response = (
   value: unknown,
@@ -30,6 +31,9 @@ export async function GET(
       ...registry.model,
       scope: "National, all-season, 2025 held-out test",
       promoted: false,
+      audit: modelAudit,
+      warning:
+        "Horizon sampling has a clock-hour bias. Severe Diwali peak skill and interval coverage are poor.",
     });
   if (endpoint === "status")
     return response({

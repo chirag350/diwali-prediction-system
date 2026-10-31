@@ -1,4 +1,13 @@
-const CACHE='shwasa-v1';
-self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(c=>c.addAll(['/','/icon.svg'])).catch(()=>{}));self.skipWaiting();});
-self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
-self.addEventListener('fetch',event=>{const request=event.request,url=new URL(request.url);if(request.method!=='GET'||url.origin!==self.location.origin||url.pathname.startsWith('/_next/webpack-hmr')||url.pathname.startsWith('/__nextjs')||url.pathname.startsWith('/api/v1/reports')||url.pathname.startsWith('/api/v1/leaderboard')||url.pathname.startsWith('/api/v1/status'))return;event.respondWith(fetch(request).then(response=>{if(response.ok){const copy=response.clone();void caches.open(CACHE).then(c=>c.put(request,copy));}return response;}).catch(()=>caches.match(request).then(cached=>cached||(request.mode==='navigate'?caches.match('/'):new Response('Offline',{status:503})))));});
+// Retirement worker: recover clients controlled by the legacy navigation cache.
+// Never substitute home-page HTML for another route or intercept RSC requests.
+self.addEventListener("install", () => self.skipWaiting());
+self.addEventListener("activate", (event) =>
+  event.waitUntil(
+    (async () => {
+      for (const key of await caches.keys())
+        if (key.startsWith("shwasa-")) await caches.delete(key);
+      await self.clients.claim();
+      await self.registration.unregister();
+    })(),
+  ),
+);

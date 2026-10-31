@@ -48,6 +48,8 @@ The Hindi control currently translates primary navigation and the overview headi
 
 ## Model and data
 
+**Model recheck:** [audit findings](./training/AUDIT.md) identify clock-hour bias in the v1 training sampler and severe underprediction during pollution peaks. The corrected sampler is implemented; an NCR candidate was retrained and remains unpromoted because peak errors are still large. The original national metrics below describe the old sampling protocol and must not be presented as validation of Delhi Diwali peaks.
+
 The included `models/national-v1.json` is the trained, **unpromoted candidate**. It uses the same dependency-free `training/model.ts` inference code as offline evaluation. All visible forecasts carry archive/provenance labels.
 
 - **Fit:** data through 2023; four ridge models covering 1–6, 7–24, 25–48 and 49–72 hours.
@@ -101,7 +103,7 @@ bun run build
 
 Browser tests cover desktop and mobile, route rendering, neighborhood search, timeline controls, replay phases, model scenarios, report-card values, API validation and interval/additive contracts. Run a dev server first. Tests use system Chrome at `/opt/google/chrome/chrome` when available, otherwise a Playwright-installed Chromium. Use `TEST_BASE_URL` to target a production preview.
 
-The service worker caches visited app resources and forecast requests. It does not cache report writes or deliver notifications. The basemap credits OpenStreetMap contributors; the fallback is explicitly schematic.
+The legacy service worker has been retired: it could replace failed navigation with cached home-page HTML. Existing installations update to a retirement worker that clears the old app cache and unregisters itself. Pages now have explicit routes. No offline-navigation caching is currently enabled. The basemap credits OpenStreetMap contributors; the fallback is explicitly schematic.
 
 ## Before production
 
@@ -110,3 +112,17 @@ Evaluate Delhi-NCR festival windows, peak errors and high-pollution episodes; va
 Hourly PM2.5 is the primary forecast. Categories and the PM2.5 sub-index use trailing-day concentration; they are not a complete official multi-pollutant AQI. General exposure guidance links to WHO; this app is not a medical device or a replacement for official CPCB advisories.
 
 Built with Next.js, React, TypeScript, Bun, MapLibre GL, H3 and Lucide. Source data: CPCB, Open-Meteo/ERA5, NASA FIRMS and the local historical-traffic generator. See the methodology page for attribution and limits.
+
+## Navigation / AQI hotfix
+
+The primary forecast card now defaults to an explicitly labelled **AQI estimate (PM2.5 sub-index only, rolling 24 hours)**. The PM2.5 toggle and separate concentration row retain hourly µg/m³. These are different quantities and averaging periods. The model still forecasts PM2.5, not official multi-pollutant AQI.
+
+For an existing browser tab affected by the old cache, restart `bun run dev` and reload once to install the retirement worker. Subsequent routes are served independently; a failed page never silently returns home.
+
+Corrected-sampler experimental retraining can reuse the existing hourly cache:
+
+```bash
+TRAINING_OUTPUT=training/output/recheck-v2 TRAINING_CACHE_DIR=training/output/cache bun run ml:train --ncr --reuse-cache
+```
+
+This does not replace the app model automatically. See `training/AUDIT.md` and the report-card audit section before using forecasts for decisions.

@@ -94,3 +94,21 @@ export function download(name: string, text: string, type = "text/csv") {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+/** Observed rolling-day concentration for replay, using only measured slots. */
+export function observedDayMean(
+  station: import("./types").Station,
+  hour: number,
+): number | null {
+  const target = Date.parse(station.points[hour].time),
+    measured = new Map(station.history.map((p) => [Date.parse(p.time), p.pm]));
+  for (const point of station.points.slice(0, hour + 1))
+    if (point.actual !== null)
+      measured.set(Date.parse(point.time), point.actual);
+  const values = Array.from({ length: 24 }, (_, j) =>
+    measured.get(target - j * 3600000),
+  ).filter((v): v is number => v !== undefined);
+  return values.length >= 18
+    ? values.reduce((a, b) => a + b, 0) / values.length
+    : null;
+}

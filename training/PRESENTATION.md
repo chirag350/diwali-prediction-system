@@ -1,3 +1,5 @@
+> **Update:** The v1 sampler was found to be clock-biased, and severe Diwali forecasts fail peak checks. Present the findings in [AUDIT.md](./AUDIT.md) alongside these architecture notes; do not present the original national metrics as evidence of Delhi peak accuracy.
+
 # Presenting the first Shwāsa model
 
 ## A 60-second explanation

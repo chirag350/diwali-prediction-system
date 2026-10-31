@@ -45,6 +45,8 @@ import type { LucideIcon } from "lucide-react";
 import type { Registry, Snapshot, Station } from "../lib/types";
 import {
   airColor,
+  pmSubindex,
+  observedDayMean,
   bestWindow,
   categories,
   clearBy,
@@ -278,6 +280,7 @@ export default function Dashboard({
     [alertOpen, setAlertOpen] = useState(false),
     [threshold, setThreshold] = useState(120),
     [profile, setProfile] = useState("general"),
+    [metric, setMetric] = useState<"aqi" | "pm">("aqi"),
     [assistant, setAssistant] = useState(false),
     [question, setQuestion] = useState(""),
     [answer, setAnswer] = useState(""),
@@ -290,7 +293,7 @@ export default function Dashboard({
   const station =
     snapshot.stations.find((s) => s.id === selected) ?? snapshot.stations[0];
   const point = station.points[hour];
-  const displayValue =
+  const concentrationValue =
     activeView === "time-machine" && plotMode !== "forecast"
       ? point.actual === null
         ? null
@@ -299,6 +302,19 @@ export default function Dashboard({
           : Math.abs(point.p50 - point.actual)
       : point.p50;
   const displayKind = activeView === "time-machine" ? plotMode : "forecast";
+  const observedMean = observedDayMean(station, hour);
+  const forecastIndex = point.aqi === null ? null : pmSubindex(point.mean24);
+  const observedIndex = observedMean === null ? null : pmSubindex(observedMean);
+  const displayIndex =
+    displayKind === "forecast"
+      ? forecastIndex
+      : displayKind === "actual"
+        ? observedIndex
+        : forecastIndex === null || observedIndex === null
+          ? null
+          : Math.abs(forecastIndex - observedIndex);
+  const displayValue = metric === "aqi" ? displayIndex : concentrationValue;
+
   const best = bestWindow(station.points),
     highest = peak(station.points),
     clear = clearBy(station.points);
@@ -356,8 +372,25 @@ export default function Dashboard({
       if (savedTheme === "dark") setDark(true);
       if (localStorage.getItem("shwasa-lite") === "1") setLite(true);
     });
-    if ("serviceWorker" in navigator)
-      void navigator.serviceWorker.register("/sw.js").catch(() => {});
+    if ("serviceWorker" in navigator) {
+      // Remove the legacy worker which returned home HTML for unrelated routes.
+      void navigator.serviceWorker
+        .getRegistrations()
+        .then(async (registrations) => {
+          await Promise.all(
+            registrations
+              .filter((r) => r.scope === new URL("/", location.href).href)
+              .map((r) => r.update()),
+          );
+          if ("caches" in window)
+            await Promise.all(
+              (await caches.keys())
+                .filter((k) => k.startsWith("shwasa-"))
+                .map((k) => caches.delete(k)),
+            );
+        })
+        .catch(() => {});
+    }
   }, [initial.id, loadSnapshot]);
   useEffect(() => {
     document.documentElement.dataset.theme = dark ? "dark" : "light";
@@ -726,6 +759,23 @@ export default function Dashboard({
         </button>
       </div>
       <h2>{station.name}</h2>
+      <div
+        className="segmented air-metric-toggle"
+        aria-label="Air quality metric"
+      >
+        <button
+          className={metric === "aqi" ? "active" : ""}
+          onClick={() => setMetric("aqi")}
+        >
+          AQI estimate
+        </button>
+        <button
+          className={metric === "pm" ? "active" : ""}
+          onClick={() => setMetric("pm")}
+        >
+          PM2.5
+        </button>
+      </div>
       <p className="air-time">
         {dateLabel(point.time)} · {hourLabel(point.time)} IST{" "}
         <Badge tone="green">
@@ -740,22 +790,26 @@ export default function Dashboard({
         <div>
           <div className="big-number">
             {displayValue === null ? "—" : Math.round(displayValue)}
-            <span>µg/m³</span>
+            <span>{metric === "aqi" ? "/ 500" : "µg/m³"}</span>
           </div>
           <span className="reading-label">
             {displayValue === null
-              ? "No measurement at this hour"
-              : displayKind === "diff"
-                ? "Absolute forecast error"
-                : "PM2.5 concentration"}
+              ? "Insufficient rolling-day measurements"
+              : metric === "aqi"
+                ? displayKind === "diff"
+                  ? "Absolute PM2.5 sub-index error"
+                  : "AQI estimate · PM2.5 only · 24h"
+                : displayKind === "diff"
+                  ? "Absolute PM2.5 forecast error"
+                  : "Hourly PM2.5 concentration"}
           </span>
         </div>
         <div
           className="air-gauge"
           style={
             {
-              "--air-color": airColor(point.p50),
-              "--gauge": `${Math.min(95, (point.p50 / 350) * 100)}%`,
+              "--air-color": airColor(point.mean24),
+              "--gauge": `${Math.min(95, ((forecastIndex ?? 0) / 500) * 100)}%`,
             } as React.CSSProperties
           }
         >
@@ -774,12 +828,25 @@ export default function Dashboard({
       </div>
       <div className="interval-row">
         <span>
-          Forecast range <InfoCircle />
+          PM2.5 forecast range <InfoCircle />
         </span>
         <strong>
           {Math.round(point.p10)}–{Math.round(point.p90)} <span>µg/m³</span>
         </strong>
       </div>
+      <div className="concentration-detail">
+        <span>
+          Hourly PM2.5 {displayKind === "actual" ? "measured" : "modelled"}
+        </span>
+        <strong>
+          {concentrationValue === null ? "—" : Math.round(concentrationValue)}{" "}
+          µg/m³
+        </strong>
+      </div>
+      <p className="aqi-fine">
+        PM2.5 sub-index, not the official multi-pollutant AQI. This is an
+        archived replay, not today’s air.
+      </p>
       <div className="air-summary-row">
         <TrendingUp size={17} />
         <div>
@@ -985,6 +1052,13 @@ export default function Dashboard({
                 ))}
               </select>
             </div>
+          </div>
+          <div className="model-caution">
+            <ShieldCheck size={13} />
+            <span>
+              Experimental v1: severe Diwali peaks are underestimated.{" "}
+              <Link href="/report-card">See the model recheck ↗</Link>
+            </span>
           </div>
           {error && (
             <div className="error-banner" role="alert">

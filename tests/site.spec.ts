@@ -8,6 +8,12 @@ test("overview renders real candidate forecasts and supports neighborhood search
   await expect(
     page.getByRole("heading", { name: "The air, a little ahead." }),
   ).toBeVisible();
+  await expect(page.locator(".big-number")).toContainText("/ 500");
+  await expect(page.locator(".big-number")).toContainText("403");
+  await page
+    .locator(".air-metric-toggle")
+    .getByRole("button", { name: "PM2.5", exact: true })
+    .click();
   await expect(page.locator(".big-number")).toContainText("µg/m³");
   await expect(page.locator(".context-bar")).toContainText("REPLAY");
   await page.locator(".place-picker").click();
@@ -46,7 +52,14 @@ test("replay, report card, explanation and scenarios work", async ({
   await expect(
     page.getByRole("heading", { name: "Every horizon, in full." }),
   ).toBeVisible();
-  await expect(page.locator("table tbody tr")).toHaveCount(4);
+  await expect(
+    page
+      .locator(".table-card")
+      .filter({
+        has: page.getByRole("heading", { name: "Every horizon, in full." }),
+      })
+      .locator("tbody tr"),
+  ).toHaveCount(4);
   await expect(page.locator(".metric-card").first()).toContainText("20.26");
   await page.goto("/why");
   await expect(page.locator(".contribution-row")).toHaveCount(6);
@@ -164,6 +177,6 @@ test("shared URLs retain archived hour and widget loads without navigation", asy
   await page.goto("/embed?station=site_301");
   await expect(page.locator(".widget-shell h1")).toContainText("Anand");
   await expect(page.locator(".sidebar")).toHaveCount(0);
-  await expect(page.locator(".widget-number")).toContainText("µg/m³");
+  await expect(page.locator(".widget-number")).toContainText("/ 500");
   expect(errors).toEqual([]);
 });

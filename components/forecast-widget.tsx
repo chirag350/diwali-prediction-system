@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Snapshot } from "../lib/types";
-import { airColor, dateLabel, hourLabel, peak } from "../lib/air";
+import { airColor, pmSubindex, dateLabel, hourLabel, peak } from "../lib/air";
 import { Brand, Badge } from "./ui";
 import { ForecastChart } from "./forecast-chart";
 export default function ForecastWidget({ initial }: { initial: Snapshot }) {
@@ -24,12 +24,15 @@ export default function ForecastWidget({ initial }: { initial: Snapshot }) {
       <p>
         {dateLabel(p.time)} · {hourLabel(p.time)} IST · modelled
       </p>
-      <div className="widget-number" style={{ color: airColor(p.p50) }}>
-        {Math.round(p.p50)}
-        <span> µg/m³</span>
+      <div className="widget-number" style={{ color: airColor(p.mean24) }}>
+        {p.aqi === null ? "—" : pmSubindex(p.mean24)}
+        <span> / 500</span>
       </div>
       <p>
-        PM2.5 · nominal 80% range {Math.round(p.p10)}–{Math.round(p.p90)}
+        AQI estimate · PM2.5 only · trailing 24h
+        <br />
+        Hourly PM2.5: {Math.round(p.p50)} µg/m³ · range {Math.round(p.p10)}–
+        {Math.round(p.p90)}
       </p>
       <ForecastChart points={s.points} compact />
       <div className="widget-summary">
