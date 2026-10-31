@@ -1,6 +1,6 @@
-# VayuNetra — Master Product Requirements Document
+# Shwāsa AI — Master Product Requirements Document
 
-> **VayuNetra** (*Vayu* = air, *Netra* = eye) — *the eye that sees your air before it arrives.*
+> **Shwāsa AI** (*Shwāsa* = breath / life breath) — *A breath of fresh air, one neighbourhood at a time.*
 > Street-level, explainable, AI-driven air-pollution forecasts for the Diwali window: **before, during and after**.
 
 | | |
@@ -52,7 +52,7 @@
 
 ## 1. Executive summary
 
-VayuNetra turns sparse air-quality readings into an **hour-by-hour PM2.5 forecast for every ~0.7 km² neighborhood cell** of Delhi-NCR, covering the whole festival arc: the **build-up** before Diwali, the **night burst**, and the **hangover and dispersion** after. Every number comes with an uncertainty band, a plain-language explanation of what is driving it, and a concrete action for whoever is looking at it.
+Shwāsa AI turns sparse air-quality readings into an **hour-by-hour PM2.5 forecast for every ~0.7 km² neighborhood cell** of Delhi-NCR, covering the whole festival arc: the **build-up** before Diwali, the **night burst**, and the **hangover and dispersion** after. Every number comes with an uncertainty band, a plain-language explanation of what is driving it, and a concrete action for whoever is looking at it.
 
 ### Four promises
 
@@ -78,7 +78,7 @@ VayuNetra turns sparse air-quality readings into an **hour-by-hour PM2.5 forecas
 
 Air quality in Indian cities deteriorates sharply around Diwali. Cracker smoke, festive traffic, cooler nights, thermal inversion, low wind and regional crop-residue smoke stack up in the same few days. Pollution during this window is **hyperlocal**: one colony bursts crackers while the next does not; wind carries smoke across boundaries; a shallow inversion at 2 AM traps everything.
 
-| # | Gap today | Who feels it | VayuNetra response |
+| # | Gap today | Who feels it | Shwāsa AI response |
 |---|---|---|---|
 | 1 | Few monitoring stations; one city AQI hides lane-to-lane differences | Everyone | Hex-grid downscaling with covariates + kriging |
 | 2 | Forecasts are city-wide and blind to festival emissions | Residents, planners | Dedicated Diwali event-emission module and phase model |
@@ -168,7 +168,7 @@ Five team PRDs were merged. **PRD 1 (PranaVayu AI) is the spine**: Delhi-NCR foc
 
 ## 6. How we are different
 
-| Dimension | Typical submission | **VayuNetra** |
+| Dimension | Typical submission | **Shwāsa AI** |
 |---|---|---|
 | Resolution | City or station-level AQI chart | ~0.7 km² hex grid (zoom to ~0.1 km²) with 30+ named Delhi-NCR micro-zone roll-ups |
 | Festival awareness | Generic time-series model | Diwali Phase Engine: build-up ramp, night burst, hangover/dispersion; profile learned from past Diwalis, not assumed from rules |
@@ -954,7 +954,7 @@ Full setup commands, structure and scripts are in **README.md**. Summary:
 
 | # | Decision | Default | Owner |
 |---|---|---|---|
-| 1 | Final product name | **VayuNetra** | Team |
+| 1 | Final product name | **Shwāsa AI** | Team |
 | 2 | Deployment target | Vercel (edge + cron + blob); portable to any Node host | B |
 | 3 | Traffic source | TomTom free tier if key and terms OK, else proxy | A |
 | 4 | Learned member | Ridge first; GRU only if time allows | A |

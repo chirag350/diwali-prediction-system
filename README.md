@@ -1,6 +1,6 @@
-# 🪔 VayuNetra
+# 🪔 Shwāsa AI
 
-**The eye that sees your air before it arrives.**
+**A breath of fresh air, one neighbourhood at a time.**
 Street-level, explainable, AI-driven air-pollution forecasts for **before, during and after Diwali** — built 100% on Next.js.
 
 ![Next.js](https://img.shields.io/badge/Next.js-App%20Router-black)
@@ -16,11 +16,11 @@ Street-level, explainable, AI-driven air-pollution forecasts for **before, durin
 
 ---
 
-## 🌬️ Why VayuNetra exists
+## 🌬️ Why Shwāsa AI exists
 
 On Diwali night, "Delhi AQI is 350" is almost useless. One colony bursts crackers while the next doesn't. Wind carries smoke across ward boundaries. A shallow inversion at 2 AM traps everything. The nearest monitoring station may be kilometres from your home.
 
-VayuNetra forecasts the air **for your neighborhood, hour by hour**, tells you **why** it will be bad, **when it will clear**, **what to do about it**, and gives authorities a **what-if simulator and deployment planner** to act before the peak.
+Shwāsa AI forecasts the air **for your neighborhood, hour by hour**, tells you **why** it will be bad, **when it will clear**, **what to do about it**, and gives authorities a **what-if simulator and deployment planner** to act before the peak.
 
 | | |
 |---|---|
@@ -499,7 +499,7 @@ Works offline via `DEMO_MODE=1`. Script: [`docs/DEMO-SCRIPT.md`](./docs/DEMO-SCR
 
 ## ⚠️ Disclaimer
 
-VayuNetra provides modelled estimates for awareness and planning. It is **not** a medical device and **not** a replacement for official CPCB data or advisories. Neighborhood values away from monitoring stations are estimates and are labelled with their confidence.
+Shwāsa AI provides modelled estimates for awareness and planning. It is **not** a medical device and **not** a replacement for official CPCB data or advisories. Neighborhood values away from monitoring stations are estimates and are labelled with their confidence.
 
 ---
 
