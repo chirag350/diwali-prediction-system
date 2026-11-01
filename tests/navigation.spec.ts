@@ -21,7 +21,7 @@ test("every sidebar link changes the visible page", async ({ page }, info) => {
     await page.locator(`.sidebar:visible a.nav-link[href^="/${id}?"]`).click();
     await expect(page).toHaveURL(new RegExp("/" + id + "\\?"));
     await expect(page.locator("main:visible h1")).not.toHaveText(
-      "The air, a little ahead.",
+      "Delhi-NCR air quality",
     );
     await expect(
       page.locator(`.sidebar:visible a.nav-link[href^="/${id}?"]`),
@@ -45,9 +45,9 @@ test("unknown routes never silently show the cached home page", async ({
   const response = await page.goto("/this-page-does-not-exist");
   expect(response?.status()).toBe(404);
   await expect(
-    page.getByRole("heading", { name: "Let’s find your way back." }),
+    page.getByRole("heading", { name: "Page not found" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "The air, a little ahead." }),
+    page.getByRole("heading", { name: "Delhi-NCR air quality" }),
   ).toHaveCount(0);
 });

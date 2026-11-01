@@ -4,16 +4,20 @@ test("2026 opens with all three phases and no invented actuals", async ({
   request,
 }) => {
   await page.goto("/");
-  await expect(page.locator(".context-bar")).toContainText("2026 OUTLOOK");
+  await expect(page.locator(".context-bar")).toContainText("2026 ESTIMATE");
   await expect(
-    page.getByRole("heading", { name: "More light. A little more foresight." }),
+    page.getByRole("heading", { name: "Diwali 2026 air quality" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Build-up T−48h" }).click();
-  await expect(page.locator(".context-bar")).toContainText("Build-up");
-  await page.getByRole("button", { name: "The burst Diwali evening" }).click();
+  await page
+    .getByRole("button", { name: "Before Diwali Two days before" })
+    .click();
+  await expect(page.locator(".context-bar")).toContainText("Before Diwali");
+  await page
+    .getByRole("button", { name: "Diwali night Diwali evening" })
+    .click();
   await expect(page.locator(".context-bar")).toContainText("Burst");
   await expect(
-    page.getByRole("button", { name: "Actual", exact: true }),
+    page.getByRole("button", { name: "Recorded", exact: true }),
   ).toBeDisabled();
   const response = await request.get("/api/v1/replay?snapshot=2026-during");
   expect(response.ok()).toBe(true);
@@ -56,7 +60,7 @@ test("2026 evidence and grounded assistant use analog method", async ({
   await expect(page.locator(".contribution-bars")).toHaveCount(0);
   await page.goto("/report-card");
   await expect(
-    page.getByRole("heading", { name: "The 2026 outlook has its own test." }),
+    page.getByRole("heading", { name: "Checks for the 2026 method" }),
   ).toBeVisible();
   const answer = await request.post("/api/v1/assistant", {
     data: {
@@ -66,5 +70,5 @@ test("2026 evidence and grounded assistant use analog method", async ({
     },
   });
   expect(answer.ok()).toBe(true);
-  expect((await answer.json()).answer).toContain("historical-analog outlook");
+  expect((await answer.json()).answer).toContain("past Diwalis");
 });

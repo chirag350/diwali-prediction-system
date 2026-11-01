@@ -23,7 +23,7 @@ export type Station = {
   lon: number;
   h3: string;
   origin: string;
-  measured: number;
+  measured: number | null;
   history: { time: string; pm: number }[];
   input: Inputs;
   points: Point[];

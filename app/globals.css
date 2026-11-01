@@ -1008,12 +1008,12 @@ kbd {
   height: 5px;
   background: linear-gradient(
     to right,
-    #6d9b73,
-    #a4ac58,
-    #dbb653,
-    #d78650,
-    #b85d52,
-    #854551
+    #15803d,
+    #65a30d,
+    #ca8a04,
+    #ea580c,
+    #dc2626,
+    #7f1d1d
   );
   border-radius: 2px;
 }
@@ -1284,12 +1284,12 @@ kbd {
   height: 4px;
   background: linear-gradient(
     to right,
-    #6d9b73 0% 10%,
-    #a4ac58 10% 20%,
-    #dbb653 20% 30%,
-    #d78650 30% 40%,
-    #b85d52 40% 83%,
-    #854551 83%
+    #15803d 0% 10%,
+    #65a30d 10% 20%,
+    #ca8a04 20% 30%,
+    #ea580c 30% 40%,
+    #dc2626 40% 83%,
+    #7f1d1d 83%
   );
   margin-top: 12px;
   position: relative;
@@ -5768,5 +5768,126 @@ tbody tr:hover {
   }
   .time-controls {
     min-height: 78px;
+  }
+}
+/* Pollution colours describe the value, never which area was selected. */
+.air-category {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  padding: 5px 9px;
+  white-space: nowrap;
+}
+.air-status {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.air-status .air-category {
+  width: auto;
+  height: auto;
+  border-radius: 5px;
+}
+.air-status > span:last-child:not(.air-category) {
+  margin-left: auto;
+}
+.concentration-scale,
+.legend-gradient {
+  background: linear-gradient(
+    to right,
+    #15803d,
+    #65a30d,
+    #ca8a04,
+    #ea580c,
+    #dc2626,
+    #7f1d1d
+  );
+}
+.concentration-scale {
+  background: linear-gradient(
+    to right,
+    #15803d 0% 10%,
+    #65a30d 10% 20%,
+    #ca8a04 20% 30%,
+    #ea580c 30% 40%,
+    #dc2626 40% 83.33%,
+    #7f1d1d 83.33%
+  );
+}
+.key-line {
+  background: linear-gradient(to right, #15803d, #ea580c, #7f1d1d);
+}
+.key-band {
+  background: #cbd5e1;
+}
+.key-dot {
+  background: #64748b;
+}
+.compare-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.compare-time {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+.compare-time label {
+  color: var(--muted);
+}
+.compare-time select {
+  font-size: 12px;
+  min-height: 40px;
+}
+.compare-source {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-top: 15px;
+}
+.compare-metric-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0 0 15px;
+}
+.compare-number > span {
+  font-size: 14px;
+}
+.compare-row {
+  font-size: 12px;
+  line-height: 1.6;
+  flex-wrap: wrap;
+}
+.compare-row strong {
+  font-size: 12px;
+  line-height: 1.6;
+}
+@media (max-width: 650px) {
+  .compare-toolbar > .segmented {
+    width: 100%;
+  }
+  .compare-toolbar > .segmented button {
+    flex: 1;
+  }
+  .compare-time {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .compare-time select {
+    width: 100%;
+  }
+  .compare-source {
+    font-size: 12px;
+  }
+  .air-status > span:last-child:not(.air-category) {
+    font-size: 11px;
   }
 }

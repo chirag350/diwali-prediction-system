@@ -45,19 +45,19 @@ import type { LucideIcon } from "lucide-react";
 import type { Registry, Snapshot, Station } from "../lib/types";
 import {
   airColor,
+  airCategory,
   pmSubindex,
   observedDayMean,
   bestWindow,
-  categories,
   clearBy,
   dateLabel,
   fullDate,
   hourLabel,
-  level,
   peak,
 } from "../lib/air";
 import { ForecastChart } from "./forecast-chart";
 import {
+  AirStatus,
   ArrowLink,
   Badge,
   Brand,
@@ -81,7 +81,7 @@ const AirMap = dynamic(() => import("./air-map"), {
   loading: () => (
     <div className="map-loading">
       <span className="loading-orbit" />
-      Preparing your neighborhood map…
+      Loading the map…
     </div>
   ),
 });
@@ -99,155 +99,130 @@ const navigation: {
     group: "YOUR AIR",
     items: [
       { id: "", label: "Overview", hi: "अवलोकन", icon: LayoutDashboard },
-      { id: "map", label: "Explore the map", hi: "मानचित्र", icon: Map },
+      { id: "map", label: "Air map", hi: "मानचित्र", icon: Map },
       { id: "my-air", label: "My Air", hi: "मेरी हवा", icon: Wind },
       {
         id: "time-machine",
-        label: "Time Machine",
+        label: "Past Diwalis",
         hi: "समय यात्रा",
         icon: Clock3,
-        tag: "REPLAY",
+        tag: "PAST YEAR",
       },
     ],
   },
   {
-    group: "A LITTLE MORE INSIGHT",
+    group: "EXPLORE",
     items: [
       {
         id: "why",
-        label: "Understand the why",
+        label: "How estimates work",
         hi: "कारण जानें",
         icon: Activity,
       },
       {
         id: "lab",
-        label: "What-if Lab",
+        label: "Change conditions",
         hi: "परिदृश्य लैब",
         icon: FlaskConical,
       },
       {
         id: "compare",
-        label: "Compare places",
+        label: "Compare areas",
         hi: "स्थानों की तुलना",
         icon: GitCompareArrows,
       },
-      { id: "authority", label: "City desk", hi: "शहर डेस्क", icon: Users },
+      { id: "authority", label: "City planning", hi: "शहर डेस्क", icon: Users },
     ],
   },
   {
-    group: "BUILT ON TRUST",
+    group: "ABOUT THE DATA",
     items: [
       {
         id: "report-card",
-        label: "Model report card",
+        label: "Model results",
         hi: "मॉडल रिपोर्ट",
         icon: BarChart3,
       },
       { id: "report", label: "Community", hi: "समुदाय", icon: Heart },
       {
         id: "about",
-        label: "Our methodology",
+        label: "How it works",
         hi: "हमारी पद्धति",
         icon: BookOpen,
       },
-      { id: "status", label: "Data health", hi: "डेटा की स्थिति", icon: Radio },
+      {
+        id: "status",
+        label: "Data sources",
+        hi: "डेटा की स्थिति",
+        icon: Radio,
+      },
     ],
   },
 ];
 const headings: Record<string, [string, string]> = {
-  "": [
-    "The air, a little ahead.",
-    "A clearer picture of your neighborhood. A little more room to breathe.",
-  ],
-  map: [
-    "Every neighborhood tells a story.",
-    "Explore how air changes from one street to the next.",
-  ],
-  "my-air": [
-    "A breath closer to home.",
-    "Your neighborhood’s next 72 hours, with the uncertainty left in.",
-  ],
+  "": ["Delhi-NCR air quality", "Choose an area to see air quality estimates."],
+  map: ["Air quality map", "Compare pollution across Delhi-NCR."],
+  "my-air": ["Your area", "See hourly estimates for your area."],
   "time-machine": [
-    "Go back. See what comes next.",
-    "Replay the build-up, the burst, and the air that lingered.",
+    "Past Diwalis",
+    "See pollution before, during and after Diwali.",
   ],
-  why: [
-    "There’s a reason in the air.",
-    "Follow the inputs behind your forecast.",
-  ],
+  why: ["How estimates work", "See what the estimate is based on."],
   lab: [
-    "What if we did things differently?",
-    "Explore how changing inputs changes the model’s estimate.",
+    "Change traffic and wind",
+    "Adjust the settings to see how the estimate changes.",
   ],
-  compare: [
-    "Two places. One clearer picture.",
-    "Compare the next 72 hours, side by side.",
-  ],
+  compare: ["Compare areas", "Compare hourly estimates for two areas."],
   "report-card": [
-    "The numbers behind the numbers.",
-    "A public report card. Including the parts we need to improve.",
+    "Model results",
+    "See how estimates compare with recorded pollution.",
   ],
-  authority: [
-    "A city-wide point of view.",
-    "A read-only planning desk for a better-informed response.",
-  ],
-  report: [
-    "Good air is a shared effort.",
-    "Help us understand what you’re seeing, one neighborhood at a time.",
-  ],
-  pledge: [
-    "A smaller footprint. A shared breath.",
-    "Make a little room for cleaner celebrations.",
-  ],
+  authority: ["City planning", "Find areas that may need attention."],
+  report: ["Report smoke or dust", "Tell us what you see in your area."],
+  pledge: ["Clean Diwali pledge", "Pledge to celebrate with less smoke."],
   about: [
-    "Built to be understood.",
-    "Our model, our sources, and the limits we won’t hide.",
+    "How it works",
+    "How we make estimates and where the data comes from.",
   ],
-  status: [
-    "Good forecasts start here.",
-    "A transparent look at the data behind this experience.",
-  ],
-  embed: [
-    "A little air, on your website.",
-    "A compact, shareable view of your neighborhood forecast.",
-  ],
+  status: ["Data sources", "Check which data is available."],
+  embed: ["Share this forecast", "Add an area forecast to your website."],
 };
 const tourSteps = [
   {
     view: "",
     snapshot: "2026-during",
-    title: "2026, with the evidence in view",
-    text: "Start with the 2026 festival outlook: historical-analog medians, a real H3 map, and explicit uncertainty limits. This is not a live forecast.",
+    title: "Diwali 2026 estimates",
+    text: "The 2026 estimates use readings from past Diwalis. They are not live readings.",
   },
   {
     view: "time-machine",
     snapshot: "2025-during",
-    title: "Before, during, after",
-    text: "Replay five Diwalis. Compare the model with measured PM2.5 at the selected future hour.",
+    title: "Past Diwali readings",
+    text: "Choose a past year. Compare estimates with the pollution that was recorded.",
   },
   {
     view: "why",
     snapshot: "2025-during",
-    title: "Open the black box",
-    text: "Exact regression contributions add up to the forecast. They are statistical associations, not emissions shares.",
+    title: "How the model makes estimates",
+    text: "See how pollution history, weather and other data affect the estimate. This does not prove what caused the pollution.",
   },
   {
     view: "lab",
     snapshot: "2025-during",
-    title: "Ask a better what-if",
-    text: "Perturb traffic and wind inputs and recompute the same model. Scenario estimates are not causal policy forecasts.",
+    title: "Change traffic and wind",
+    text: "Change the traffic and wind settings. These examples do not prove that a policy would have the same effect.",
   },
   {
     view: "report-card",
     snapshot: "2025-during",
-    title: "Show the evidence",
-    text: "Inspect the analog member’s rolling historical backtests, then the ridge model’s audit. Errors and interval coverage are visible, including where the model fails.",
+    title: "Check the results",
+    text: "Compare estimates with past readings. See the errors and known problems.",
   },
   {
     view: "authority",
     snapshot: "2026-during",
-    title: "Turn insight into a plan",
-    text: "Rank monitored places and export a briefing. Operational deployment and remote alerts require configured services.",
+    title: "Choose areas to check",
+    text: "See areas with high estimates and download the list. This page does not send teams or alerts.",
   },
 ];
 export default function Dashboard({
@@ -270,7 +245,9 @@ export default function Dashboard({
     ),
     [hour, setHour] = useState(0),
     [layer, setLayer] = useState("pm"),
-    [plotMode, setPlotMode] = useState("forecast"),
+    [plotMode, setPlotMode] = useState(
+      initial.kind === "outlook" ? "forecast" : "actual",
+    ),
     [playing, setPlaying] = useState(false),
     [speed, setSpeed] = useState(1),
     [year, setYear] = useState(initial.year),
@@ -298,6 +275,8 @@ export default function Dashboard({
     snapshot: Snapshot;
     hour: number;
     selected: string;
+    plotMode: string;
+    metric: "aqi" | "pm";
   } | null>(null);
   const initialQuery = useRef<string | null>(null);
   const readyForUrl = useRef(false);
@@ -307,14 +286,14 @@ export default function Dashboard({
     snapshot.stations.find((s) => s.id === selected) ?? snapshot.stations[0];
   const point = station.points[hour];
   const concentrationValue =
-    activeView === "time-machine" && plotMode !== "forecast"
+    !isOutlook && plotMode !== "forecast"
       ? point.actual === null
         ? null
         : plotMode === "actual"
           ? point.actual
           : Math.abs(point.p50 - point.actual)
       : point.p50;
-  const displayKind = activeView === "time-machine" ? plotMode : "forecast";
+  const displayKind = isOutlook ? "forecast" : plotMode;
   const observedMean = observedDayMean(station, hour);
   const forecastIndex = point.aqi === null ? null : pmSubindex(point.mean24);
   const observedIndex = observedMean === null ? null : pmSubindex(observedMean);
@@ -327,10 +306,35 @@ export default function Dashboard({
           ? null
           : Math.abs(forecastIndex - observedIndex);
   const displayValue = metric === "aqi" ? displayIndex : concentrationValue;
+  const valueFor = (s: Station) => {
+    const p = s.points.find((p) => p.time === point.time);
+    if (!p) return null;
+    return displayKind === "actual"
+      ? p.actual
+      : displayKind === "diff"
+        ? p.actual === null
+          ? null
+          : Math.abs(p.p50 - p.actual)
+        : p.p50;
+  };
+  const categoryMean =
+    displayKind === "actual"
+      ? observedMean
+      : point.aqi === null
+        ? null
+        : point.mean24;
 
   const best = bestWindow(station.points),
     highest = peak(station.points),
     clear = clearBy(station.points);
+  const recordedPeak = station.points
+    .slice(0, 48)
+    .filter((p) => p.actual !== null)
+    .reduce<Station["points"][number] | null>(
+      (best, p) => (best === null || p.actual! > best.actual! ? p : best),
+      null,
+    );
+  const shownPeak = displayKind === "actual" ? recordedPeak : highest;
   const label = headings[activeView] ?? headings[""];
   const notify = useCallback((text: string) => setToast(text), []);
   const loadSnapshot = useCallback(async (id: string, preserveHour = false) => {
@@ -354,7 +358,7 @@ export default function Dashboard({
           setYear(next.year);
           setPhase(next.id.split("-")[1]);
         }
-        if (next.kind === "outlook") setPlotMode("forecast");
+        setPlotMode(next.kind === "outlook" ? "forecast" : "actual");
         if (!preserveHour) setHour(0);
         setPlaying(false);
         return true;
@@ -381,6 +385,8 @@ export default function Dashboard({
       setSnapshot(saved.snapshot);
       setHour(saved.hour);
       setSelected(saved.selected);
+      setPlotMode(saved.plotMode);
+      setMetric(saved.metric);
       setYear(saved.snapshot.year);
       setPhase(saved.snapshot.id.split("-")[1] ?? "during");
       tourRestore.current = null;
@@ -403,9 +409,9 @@ export default function Dashboard({
   );
   const startTour = useCallback(async () => {
     if (busy) return;
-    tourRestore.current = { snapshot, hour, selected };
+    tourRestore.current = { snapshot, hour, selected, plotMode, metric };
     await goToTourStep(0);
-  }, [busy, snapshot, hour, selected, goToTourStep]);
+  }, [busy, snapshot, hour, selected, plotMode, metric, goToTourStep]);
   useEffect(() => {
     if (initialQuery.current === null)
       initialQuery.current = window.location.search;
@@ -563,7 +569,7 @@ export default function Dashboard({
     try {
       if (navigator.share)
         await navigator.share({
-          title: "Your air, a little ahead",
+          title: "Air quality estimate",
           text,
           url: window.location.href,
         });
@@ -629,7 +635,7 @@ export default function Dashboard({
       setAnswer(data.answer);
     } catch {
       setAnswer(
-        "The assistant is unavailable. You can read the forecast and methodology directly.",
+        "Answers are unavailable. You can still use the charts and read How it works.",
       );
     } finally {
       setAsking(false);
@@ -651,44 +657,59 @@ export default function Dashboard({
   const chart = (
     <section className="card forecast-chart-card">
       <CardHead
-        title="A little foresight goes a long way."
+        title={
+          displayKind === "actual"
+            ? "Recorded hourly pollution"
+            : "Hourly pollution estimates"
+        }
         subtitle={
-          isOutlook
-            ? "72-hour festival outlook · historical analogs · µg/m³"
-            : "72-hour PM2.5 forecast · µg/m³"
+          displayKind === "actual"
+            ? "Recorded hourly PM2.5 · µg/m³"
+            : isOutlook
+              ? "2026 estimates from past Diwalis · µg/m³"
+              : "Hourly PM2.5 estimates · µg/m³"
         }
       >
         <div className="chart-key">
           <span>
             <i className="key-line" />
-            Modelled
+            {displayKind === "actual" ? "Recorded" : "Estimated"}
           </span>
-          <span>
-            <i className="key-band" />
-            {isOutlook ? "Historical P10–P90 spread" : "80% interval"}
-          </span>
-          {activeView === "time-machine" && !isOutlook && (
+          {displayKind !== "actual" && (
             <span>
-              <i className="key-dot" />
-              Measured
+              <i className="key-band" />
+              {isOutlook ? "Range in past years" : "Expected range (80%)"}
             </span>
           )}
+          {activeView === "time-machine" &&
+            displayKind !== "actual" &&
+            !isOutlook && (
+              <span>
+                <i className="key-dot" />
+                Recorded
+              </span>
+            )}
         </div>
       </CardHead>
       <ForecastChart
         points={station.points}
         historical={isOutlook}
+        recorded={displayKind === "actual"}
         selected={hour}
         onSelect={setHour}
-        actual={activeView === "time-machine" && !isOutlook}
+        actual={
+          activeView === "time-machine" &&
+          displayKind !== "actual" &&
+          !isOutlook
+        }
       />
       <div className="chart-footer">
         <span>
           <ShieldCheck size={13} />
-          Uncertainty is part of the forecast.
+          Estimates may be wrong.
         </span>
         <button onClick={() => navigate("about")}>
-          How we model your air <ArrowUpRight size={13} />
+          How estimates work <ArrowUpRight size={13} />
         </button>
       </div>
     </section>
@@ -719,7 +740,7 @@ export default function Dashboard({
             setHour(Number(e.target.value));
             setPlaying(false);
           }}
-          aria-label="Forecast hour"
+          aria-label="Hour shown"
         />
         <div>
           <span>
@@ -757,8 +778,8 @@ export default function Dashboard({
     >
       <div className="map-card-header">
         <div>
-          <SectionLabel>THE NEIGHBORHOOD PICTURE</SectionLabel>
-          <h2>Different streets. Shared air.</h2>
+          <SectionLabel>DELHI-NCR</SectionLabel>
+          <h2>Pollution map</h2>
         </div>
         <div className="segmented small">
           <button
@@ -771,13 +792,13 @@ export default function Dashboard({
             className={layer === "uncertainty" ? "active" : ""}
             onClick={() => setLayer("uncertainty")}
           >
-            Uncertainty
+            Range
           </button>
           <button
             className={layer === "confidence" ? "active" : ""}
             onClick={() => setLayer("confidence")}
           >
-            Coverage
+            Station coverage
           </button>
         </div>
       </div>
@@ -795,8 +816,9 @@ export default function Dashboard({
           {snapshot.stations.slice(0, 12).map((s) => (
             <button key={s.id} onClick={() => setSelected(s.id)}>
               <span>{s.name}</span>
-              <strong style={{ color: airColor(s.points[hour].p50) }}>
-                {Math.round(s.points[hour].p50)} µg/m³
+              <strong style={{ color: airColor(valueFor(s) ?? NaN) }}>
+                {valueFor(s) === null ? "No reading" : Math.round(valueFor(s)!)}{" "}
+                µg/m³
               </strong>
             </button>
           ))}
@@ -808,7 +830,13 @@ export default function Dashboard({
   const airCard = (
     <section className="card air-card">
       <div className="air-card-top">
-        <SectionLabel>YOUR AIR, AT A GLANCE</SectionLabel>
+        <SectionLabel>
+          {displayKind === "actual"
+            ? "RECORDED AIR QUALITY"
+            : displayKind === "diff"
+              ? "ESTIMATE ERROR"
+              : "AIR QUALITY ESTIMATE"}
+        </SectionLabel>
         <button
           className="icon-button"
           title="Share forecast"
@@ -836,9 +864,25 @@ export default function Dashboard({
           PM2.5
         </button>
       </div>
+      {!isOutlook && (
+        <div className="segmented air-source-toggle">
+          <button
+            className={displayKind === "actual" ? "active" : ""}
+            onClick={() => setPlotMode("actual")}
+          >
+            Recorded
+          </button>
+          <button
+            className={displayKind === "forecast" ? "active" : ""}
+            onClick={() => setPlotMode("forecast")}
+          >
+            Estimated
+          </button>
+        </div>
+      )}
       <p className="air-time">
-        {dateLabel(point.time)} · {hourLabel(point.time)} IST{" "}
-        <Badge tone="green">
+        {fullDate(point.time)}{" "}
+        <Badge>
           {isOutlook
             ? "OUTLOOK"
             : displayKind === "actual"
@@ -850,19 +894,33 @@ export default function Dashboard({
       </p>
       <div className="air-reading">
         <div>
-          <div className="big-number">
+          <div
+            className="big-number"
+            style={{
+              color:
+                displayValue === null
+                  ? "#737373"
+                  : displayKind === "diff"
+                    ? "#5b21b6"
+                    : airColor(
+                        metric === "aqi"
+                          ? (categoryMean ?? NaN)
+                          : (concentrationValue ?? NaN),
+                      ),
+            }}
+          >
             {displayValue === null ? "—" : Math.round(displayValue)}
             <span>{metric === "aqi" ? "/ 500" : "µg/m³"}</span>
           </div>
           <span className="reading-label">
             {displayValue === null
-              ? "Insufficient rolling-day measurements"
+              ? "Not enough readings for 24 hours"
               : metric === "aqi"
                 ? displayKind === "diff"
-                  ? "Absolute PM2.5 sub-index error"
-                  : "AQI estimate · PM2.5 only · 24h"
+                  ? "AQI estimate error"
+                  : "AQI estimate · PM2.5 only · 24 hours"
                 : displayKind === "diff"
-                  ? "Absolute PM2.5 forecast error"
+                  ? "PM2.5 estimate error"
                   : "Hourly PM2.5 concentration"}
           </span>
         </div>
@@ -870,8 +928,9 @@ export default function Dashboard({
           className="air-gauge"
           style={
             {
-              "--air-color": airColor(point.mean24),
-              "--gauge": `${Math.min(95, ((forecastIndex ?? 0) / 500) * 100)}%`,
+              "--air-color":
+                categoryMean === null ? "#737373" : airColor(categoryMean),
+              "--gauge": `${Math.min(95, (((displayKind === "actual" ? observedIndex : forecastIndex) ?? 0) / 500) * 100)}%`,
             } as React.CSSProperties
           }
         >
@@ -879,27 +938,30 @@ export default function Dashboard({
         </div>
       </div>
       <div className="air-status">
-        <span style={{ background: airColor(point.mean24) }} />
-        <strong>{categories[level(point.mean24)]}</strong>
-        <span>24h PM2.5 band</span>
+        <AirStatus pm={categoryMean} />
+        <span>24-hour PM2.5 level</span>
       </div>
       <div className="concentration-scale">
         <span
-          style={{ left: `${Math.min(98, (point.mean24 / 300) * 100)}%` }}
+          style={{
+            left: `${Math.min(98, ((categoryMean ?? 0) / 300) * 100)}%`,
+          }}
         />
       </div>
-      <div className="interval-row">
-        <span>
-          {isOutlook ? "Historical PM2.5 spread" : "PM2.5 forecast range"}{" "}
-          <InfoCircle historical={isOutlook} />
-        </span>
-        <strong>
-          {Math.round(point.p10)}–{Math.round(point.p90)} <span>µg/m³</span>
-        </strong>
-      </div>
+      {displayKind === "forecast" && (
+        <div className="interval-row">
+          <span>
+            {isOutlook ? "Past PM2.5 range" : "Estimated PM2.5 range"}{" "}
+            <InfoCircle historical={isOutlook} />
+          </span>
+          <strong>
+            {Math.round(point.p10)}–{Math.round(point.p90)} <span>µg/m³</span>
+          </strong>
+        </div>
+      )}
       <div className="concentration-detail">
         <span>
-          Hourly PM2.5 {displayKind === "actual" ? "measured" : "modelled"}
+          Hourly PM2.5 {displayKind === "actual" ? "recorded" : "estimated"}
         </span>
         <strong>
           {concentrationValue === null ? "—" : Math.round(concentrationValue)}{" "}
@@ -907,35 +969,41 @@ export default function Dashboard({
         </strong>
       </div>
       <p className="aqi-fine">
-        PM2.5 sub-index, not the official multi-pollutant AQI.{" "}
+        Uses PM2.5 only. This is not an official AQI reading.{" "}
         {isOutlook
-          ? "Historical-analog outlook, not live conditions."
-          : "Archived replay, not today’s air."}
+          ? "Based on past Diwalis, not live readings."
+          : "Past data, not today’s air."}
       </p>
       <div className="air-summary-row">
         <TrendingUp size={17} />
         <div>
-          <span>Forecast peak</span>
+          <span>
+            {displayKind === "actual"
+              ? "Highest recorded PM2.5 over 48 hours"
+              : "Highest estimated PM2.5 over 48 hours"}
+          </span>
           <strong>
-            {Math.round(highest.p50)} µg/m³{" "}
-            <small>
-              · {dateLabel(highest.time)}, {hourLabel(highest.time)}
-            </small>
+            {shownPeak === null
+              ? "No readings"
+              : `${Math.round(displayKind === "actual" ? shownPeak.actual! : shownPeak.p50)} µg/m³`}{" "}
+            {shownPeak && <small>· {fullDate(shownPeak.time)}</small>}
           </strong>
         </div>
       </div>
-      <div className="air-summary-row">
-        <Sun size={17} />
-        <div>
-          <span>Below Poor after peak</span>
-          <strong>
-            {clear
-              ? `${dateLabel(clear.time)}, ${hourLabel(clear.time)}`
-              : "Not indicated within 72h"}
-            <small>{clear ? " · model estimate" : ""}</small>
-          </strong>
+      {displayKind !== "actual" && (
+        <div className="air-summary-row">
+          <Sun size={17} />
+          <div>
+            <span>Hourly PM2.5 below 90 after the peak</span>
+            <strong>
+              {clear
+                ? `${dateLabel(clear.time)}, ${hourLabel(clear.time)}`
+                : "Not indicated within 72h"}
+              <small>{clear ? " · model estimate" : ""}</small>
+            </strong>
+          </div>
         </div>
-      </div>
+      )}
       <button
         className="primary-button full"
         onClick={() => setAlertOpen(true)}
@@ -946,10 +1014,9 @@ export default function Dashboard({
       </button>
       <div className="air-card-foot">
         <span className="tiny-dot" />
-        {isOutlook ? "Historical analogs" : "Candidate model"}{" "}
+        {isOutlook ? "Past Diwali data" : "Experimental model"}{" "}
         <span>
-          {isOutlook ? "Starts" : "Issued"} {dateLabel(station.origin)},{" "}
-          {hourLabel(station.origin)}
+          {isOutlook ? "Starts" : "Issued"} {fullDate(station.origin)}
         </span>
       </div>
     </section>
@@ -1018,10 +1085,11 @@ export default function Dashboard({
             disabled={busy}
           >
             <MonitorPlay size={16} />
-            Take the guided tour <kbd>J</kbd>
+            Website tour <kbd>J</kbd>
           </button>
           <div className="sidebar-caption">
-            <Leaf size={12} />A little foresight. A better breath.
+            <Leaf size={12} />
+            Air quality for Delhi-NCR
           </div>
         </div>
       </aside>
@@ -1035,7 +1103,7 @@ export default function Dashboard({
             >
               <Menu size={20} />
             </button>
-            <span>YOUR NEIGHBORHOOD, UNDERSTOOD</span>
+            <span>DELHI-NCR AIR QUALITY</span>
             <span className="breadcrumb-divider">/</span>
             <strong>
               {navigation
@@ -1077,7 +1145,7 @@ export default function Dashboard({
             <div>
               <div className="heading-eyebrow">
                 <span className="tiny-dot" />
-                {hindi ? "साँस लेने की जगह" : "MAKE ROOM TO BREATHE"}
+                {hindi ? "साँस लेने की जगह" : "AIR QUALITY"}
               </div>
               <h1>
                 {hindi && activeView === ""
@@ -1102,18 +1170,18 @@ export default function Dashboard({
                 <span>DIWALI 2026</span>
               </div>
               <div className="festival-copy">
-                <SectionLabel>THE FESTIVAL, A LITTLE AHEAD</SectionLabel>
-                <h2>More light. A little more foresight.</h2>
+                <SectionLabel>6–12 NOVEMBER</SectionLabel>
+                <h2>Diwali 2026 air quality</h2>
                 <p>
-                  Explore the build-up, Diwali night, and the days after.
-                  Grounded in past festivals. Honest about the future.
+                  Estimates for before, during and after Diwali. Based on past
+                  readings, not live data.
                 </p>
                 <div>
                   <Badge tone="green">
                     {snapshot.stations.length} monitored places
                   </Badge>
-                  <Badge>2014–2025 historical evidence</Badge>
-                  <Badge>Rolling historical backtest</Badge>
+                  <Badge>Data from 2014–2025</Badge>
+                  <Badge>Checked against past years</Badge>
                 </div>
               </div>
               <button
@@ -1123,7 +1191,7 @@ export default function Dashboard({
               >
                 <MonitorPlay size={21} />
                 <span>
-                  Show me the story<small>6 steps · at your pace</small>
+                  Start the tour<small>6 steps · at your pace</small>
                 </span>
                 <ArrowUpRight size={17} />
               </button>
@@ -1133,10 +1201,10 @@ export default function Dashboard({
             <div>
               <Badge tone="orange">
                 {isOutlook
-                  ? "2026 OUTLOOK"
+                  ? "2026 ESTIMATE"
                   : snapshot.id === "latest"
-                    ? "ARCHIVED INPUTS"
-                    : "REPLAY"}
+                    ? "PAST DATA"
+                    : "PAST YEAR"}
               </Badge>
               <strong>
                 {snapshot.id === "latest"
@@ -1150,9 +1218,7 @@ export default function Dashboard({
             </div>
             <div className="context-actions">
               <span>
-                {isOutlook
-                  ? "Historical analogs · not live"
-                  : "Not a live feed"}
+                {isOutlook ? "Past Diwali data · not live" : "Not a live feed"}
               </span>
               <select
                 aria-label="Choose data period"
@@ -1177,9 +1243,9 @@ export default function Dashboard({
             <ShieldCheck size={13} />
             <span>
               {isOutlook
-                ? "2026 is an analog-based seasonal outlook. Historical spread is not a calibrated prediction interval."
-                : "Experimental v1: severe Diwali peaks are underestimated."}{" "}
-              <Link href="/report-card">See the model recheck ↗</Link>
+                ? "2026 estimates use past Diwali readings. Actual pollution may be outside the shown range."
+                : "The first model often predicts too little pollution during Diwali peaks."}{" "}
+              <Link href="/report-card">See known problems ↗</Link>
             </span>
           </div>
           {error && (
@@ -1205,20 +1271,20 @@ export default function Dashboard({
                     {[
                       {
                         id: "before",
-                        name: "Build-up",
-                        label: "T−48h",
+                        name: "Before Diwali",
+                        label: "Two days before",
                         icon: Sun,
                       },
                       {
                         id: "during",
-                        name: "The burst",
+                        name: "Diwali night",
                         label: "Diwali evening",
                         icon: Activity,
                       },
                       {
                         id: "after",
-                        name: "Hangover",
-                        label: "T+24h",
+                        name: "After Diwali",
+                        label: "One day after",
                         icon: Wind,
                       },
                     ].map((p) => (
@@ -1240,7 +1306,7 @@ export default function Dashboard({
                       onClick={() => setPlotMode("forecast")}
                       className={plotMode === "forecast" ? "active" : ""}
                     >
-                      Forecast
+                      Estimate
                     </button>
                     <button
                       disabled={isOutlook}
@@ -1252,7 +1318,7 @@ export default function Dashboard({
                       onClick={() => setPlotMode("actual")}
                       className={plotMode === "actual" ? "active" : ""}
                     >
-                      Actual
+                      Recorded
                     </button>
                     <button
                       disabled={isOutlook}
@@ -1264,7 +1330,7 @@ export default function Dashboard({
                       onClick={() => setPlotMode("diff")}
                       className={plotMode === "diff" ? "active" : ""}
                     >
-                      Difference
+                      Error
                     </button>
                   </div>
                 </div>
@@ -1305,7 +1371,7 @@ export default function Dashboard({
                         />
                         <Weather
                           icon={ShieldCheck}
-                          label="PM2.5 sub-index"
+                          label="AQI from PM2.5 only"
                           value={
                             point.aqi === null
                               ? "Unavailable"
@@ -1349,29 +1415,33 @@ export default function Dashboard({
                   {activeView === "time-machine" && (
                     <InfoNote>
                       {isOutlook
-                        ? "2026 observations do not exist yet. This curve uses festival-aligned historical medians, not future measurements or weather. Actual and difference views are disabled."
+                        ? "There are no recorded readings for Diwali 2026 yet. These estimates use past Diwalis, so recorded values and errors cannot be shown."
                         : snapshot.year <= 2023
-                          ? "This replay uses years included in fitting; it is an in-sample demonstration."
+                          ? "This year was used to build the model. It is not an independent accuracy check."
                           : snapshot.year === 2024
-                            ? "This replay uses the uncertainty-calibration year; it is not an untouched test."
-                            : "2025 was held out from fitting and calibration. These are retrospective forecasts, reconstructed from archived inputs."}{" "}
-                      Actual and error layers use only available measurements.
-                      Cells without nearby measurements are grey; consult the
-                      station chart for gaps.
+                            ? "This year was used to set the expected range. It is not an independent accuracy check."
+                            : "These estimates were made later using saved 2025 data. The model was built using earlier years."}{" "}
+                      Grey areas have no nearby recorded readings.
                     </InfoNote>
                   )}
                   <div className="lower-grid">
                     {chart}
-                    <section className="window-card">
+                    <section
+                      className="window-card"
+                      style={{
+                        borderColor: airColor(best.mean),
+                        background: airCategory(best.mean).background,
+                      }}
+                    >
                       <div className="window-illustration">
                         <Sun size={36} strokeWidth={1} />
                         <span />
                         <span />
                       </div>
-                      <SectionLabel>A LITTLE LESS EXPOSURE</SectionLabel>
-                      <h2>Find your breathing room.</h2>
+                      <SectionLabel>LOWER POLLUTION</SectionLabel>
+                      <h2>When pollution may be lower</h2>
                       <p>
-                        The lowest modelled three-hour window for this forecast.
+                        The three hours with the lowest estimated pollution.
                       </p>
                       <div className="window-time">
                         {hourLabel(best.start.time)}
@@ -1388,10 +1458,10 @@ export default function Dashboard({
                           navigate("my-air");
                         }}
                       >
-                        See my air
+                        View my area
                       </ArrowLink>
                       <span className="window-fine">
-                        Lower exposure doesn’t mean risk-free.
+                        Lower pollution does not mean safe air.
                       </span>
                     </section>
                   </div>
@@ -1407,8 +1477,8 @@ export default function Dashboard({
                       <Activity size={20} />
                     </span>
                     <div>
-                      <h3>A forecast with an explanation.</h3>
-                      <p>See what goes into the number.</p>
+                      <h3>How we make estimates</h3>
+                      <p>See the data used.</p>
                     </div>
                     <ArrowUpRight size={18} />
                   </button>
@@ -1420,8 +1490,8 @@ export default function Dashboard({
                       <SlidersHorizontal size={20} />
                     </span>
                     <div>
-                      <h3>Small changes. Different air?</h3>
-                      <p>Explore a traffic or wind scenario.</p>
+                      <h3>Change traffic and wind</h3>
+                      <p>Try different settings.</p>
                     </div>
                     <ArrowUpRight size={18} />
                   </button>
@@ -1433,8 +1503,8 @@ export default function Dashboard({
                       <ShieldCheck size={20} />
                     </span>
                     <div>
-                      <h3>Our model, on the record.</h3>
-                      <p>Real errors. An open report card.</p>
+                      <h3>Check the model results</h3>
+                      <p>See where estimates were wrong.</p>
                     </div>
                     <ArrowUpRight size={18} />
                   </button>
@@ -1454,19 +1524,18 @@ export default function Dashboard({
             ))}
           {activeView === "lab" && isOutlook && (
             <section className="card prose">
-              <SectionLabel>CHOOSE THE RIGHT TOOL</SectionLabel>
-              <h2>An outlook is not a policy experiment.</h2>
+              <SectionLabel>2026 ESTIMATES</SectionLabel>
+              <h2>Change settings for a past year</h2>
               <p>
-                The 2026 curve is a historical-analog median. Traffic and wind
-                changes cannot be applied as causal effects to this curve. The
-                regression scenario lab remains available for historical replay.
+                The 2026 estimate uses past Diwali readings. To try traffic and
+                wind settings, choose 2025.
               </p>
               <button
                 className="primary-button"
                 style={{ marginTop: 20 }}
                 onClick={() => loadSnapshot("2025-during")}
               >
-                Open the 2025 scenario lab <ArrowUpRight size={14} />
+                Use 2025 data <ArrowUpRight size={14} />
               </button>
             </section>
           )}
@@ -1480,7 +1549,12 @@ export default function Dashboard({
             />
           )}
           {activeView === "compare" && (
-            <CompareView stations={snapshot.stations} station={station} />
+            <CompareView
+              stations={snapshot.stations}
+              station={station}
+              hour={hour}
+              onHourChange={setHour}
+            />
           )}
           {activeView === "report-card" && (
             <ReportCardView registry={registry} />
@@ -1499,11 +1573,8 @@ export default function Dashboard({
             <div className="embed-page">
               {airCard}
               <div className="card prose">
-                <h2>A forecast worth sharing.</h2>
-                <p>
-                  Embed a read-only neighborhood forecast. The archive and model
-                  labels travel with it.
-                </p>
+                <h2>Share this forecast</h2>
+                <p>Copy this code to show the forecast on your website.</p>
                 <code>{`<iframe src="${typeof window === "undefined" ? "" : window.location.origin}/embed?station=${station.id}" title="Shwāsa air forecast" width="380" height="640"></iframe>`}</code>
                 <button className="secondary-button" onClick={share}>
                   Copy forecast link
@@ -1513,7 +1584,8 @@ export default function Dashboard({
           )}
           <footer className="page-footer">
             <span>
-              <Brand small />A breath of fresh air, one neighborhood at a time.
+              <Brand small />
+              Air quality estimates for Delhi-NCR.
             </span>
             <div>
               <button
@@ -1522,11 +1594,11 @@ export default function Dashboard({
                   localStorage.setItem("shwasa-lite", !lite ? "1" : "0");
                 }}
               >
-                {lite ? "Full experience" : "Lite mode"}
+                {lite ? "Show map" : "Low-data view"}
               </button>
-              <Link href="/about">Sources & methodology</Link>
+              <Link href="/about">How it works</Link>
               <span>
-                Made for a cleaner Diwali <Leaf size={12} />
+                Diwali air quality <Leaf size={12} />
               </span>
             </div>
           </footer>
@@ -1558,7 +1630,7 @@ export default function Dashboard({
               <Search size={20} />
               <input
                 autoFocus
-                placeholder="Where would you like to breathe easier?"
+                placeholder="Search for an area"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={(e) => {
@@ -1584,9 +1656,9 @@ export default function Dashboard({
               }}
             >
               <LocateFixed size={17} />
-              Use my approximate location<span>On-device only</span>
+              Use my location<span>On-device only</span>
             </button>
-            <div className="command-label">MONITORED PLACES · DELHI-NCR</div>
+            <div className="command-label">AREAS · DELHI-NCR</div>
             <div className="command-results">
               {filtered.length ? (
                 filtered.map((s) => (
@@ -1602,8 +1674,10 @@ export default function Dashboard({
                       <strong>{s.name}</strong>
                       <span>Station-supported · {s.h3}</span>
                     </div>
-                    <b style={{ color: airColor(s.points[hour].p50) }}>
-                      {Math.round(s.points[hour].p50)}
+                    <b style={{ color: airColor(valueFor(s) ?? NaN) }}>
+                      {valueFor(s) === null
+                        ? "No reading"
+                        : Math.round(valueFor(s)!)}
                       <small> µg/m³</small>
                     </b>
                     {s.id === station.id ? (
@@ -1620,7 +1694,7 @@ export default function Dashboard({
               )}
             </div>
             <div className="command-footer">
-              Choose a place to update every view.<kbd>ESC to close</kbd>
+              Choose an area.<kbd>ESC to close</kbd>
             </div>
           </div>
         </div>
@@ -1644,14 +1718,11 @@ export default function Dashboard({
             <span className="large-icon">
               <Bell size={25} />
             </span>
-            <SectionLabel>MY AIR PREFERENCES</SectionLabel>
-            <h2 id="alert-title">A little heads-up.</h2>
-            <p>
-              Save your preferred PM2.5 threshold for {station.name} on this
-              device.
-            </p>
+            <SectionLabel>SAVED SETTINGS</SectionLabel>
+            <h2 id="alert-title">Choose a pollution level</h2>
+            <p>Save a PM2.5 level for {station.name} on this device.</p>
             <label className="field-label" htmlFor="threshold">
-              My threshold · µg/m³
+              PM2.5 level · µg/m³
             </label>
             <select
               id="threshold"
@@ -1665,8 +1736,8 @@ export default function Dashboard({
               ))}
             </select>
             <InfoNote>
-              Push and email delivery are not configured. This saves a local
-              preference; it won’t send remote notifications.
+              Saved on this device only. Email and phone alerts are not
+              available.
             </InfoNote>
             <button
               className="primary-button full"
@@ -1676,9 +1747,7 @@ export default function Dashboard({
                   JSON.stringify({ station: station.id, threshold }),
                 );
                 setAlertOpen(false);
-                notify(
-                  "Preference saved on this device. Remote alerts are not active.",
-                );
+                notify("Saved on this device. Alerts are not available yet.");
               }}
             >
               Save preference
@@ -1689,7 +1758,7 @@ export default function Dashboard({
               onClick={() => {
                 localStorage.removeItem("shwasa-alert");
                 setAlertOpen(false);
-                notify("Local alert preference removed.");
+                notify("Saved setting removed.");
               }}
             >
               Remove saved preference
@@ -1714,22 +1783,19 @@ export default function Dashboard({
             </button>
           </div>
           <div className="assistant-body">
-            <SectionLabel>MEET VAYU</SectionLabel>
+            <SectionLabel>ASK A QUESTION</SectionLabel>
             <h2>
-              A little clarity,
+              Questions about
               <br />
-              on the air.
+              air quality
             </h2>
-            <p>
-              I can explain this forecast, find a lower-exposure window, or tell
-              you about the model.
-            </p>
-            <Badge tone="green">Grounded template · no LLM</Badge>
+            <p>Ask about the estimate, pollution levels or the data used.</p>
+            <Badge tone="green">Answers use this page’s data</Badge>
             <div className="suggestions">
               {[
-                "When is exposure lowest?",
-                "Why is my air like this?",
-                "What is the forecast peak?",
+                "When could I go outside?",
+                "Why is this estimate high?",
+                "When is pollution highest?",
               ].map((q) => (
                 <button key={q} onClick={() => ask(q)}>
                   {q}
@@ -1746,7 +1812,7 @@ export default function Dashboard({
                 </small>
               </div>
             )}
-            {asking && <p role="status">Reading your forecast…</p>}
+            {asking && <p role="status">Checking the data…</p>}
           </div>
           <form
             className="assistant-input"
@@ -1786,7 +1852,7 @@ export default function Dashboard({
           <div className="tour-top">
             <span>
               <MonitorPlay size={14} />
-              THE SHWĀSA WALKTHROUGH
+              WEBSITE TOUR
             </span>
             <button
               className="icon-button"
@@ -1850,8 +1916,8 @@ function InfoCircle({ historical = false }: { historical?: boolean }) {
     <span
       title={
         historical
-          ? "Historical 10th to 90th percentile range across earlier Diwali seasons. Not a calibrated prediction interval."
-          : "Nominal 80% prediction interval, calibrated on 2024. Actual coverage is measured on 2025."
+          ? "The middle 80% of readings from past Diwalis. Future readings may fall outside this range."
+          : "This range was set using errors from 2024. The results page shows how often 2025 readings fell inside it."
       }
       className="info-circle"
     >
@@ -1889,8 +1955,8 @@ function Advice({
   return (
     <section className="card advice-card">
       <CardHead
-        title="Make a little room for better air."
-        subtitle="General exposure guidance, adapted to your selected profile."
+        title="Planning time outdoors"
+        subtitle="Choose a group for general advice."
       >
         <select
           aria-label="Health profile"
@@ -1907,32 +1973,31 @@ function Advice({
       <div className="advice-columns">
         <div>
           <Sun size={22} />
-          <h3>Choose your moment.</h3>
+          <h3>Check the time</h3>
           <p>
-            The model’s lowest three-hour window starts{" "}
-            {dateLabel(best.start.time)}, {hourLabel(best.start.time)}. Lower
-            doesn’t mean safe.
+            The lowest estimated pollution starts {dateLabel(best.start.time)},{" "}
+            {hourLabel(best.start.time)}. Lower doesn’t mean safe.
           </p>
         </div>
         <div>
           <Wind size={22} />
-          <h3>Give busy roads some space.</h3>
+          <h3>Avoid busy roads</h3>
           <p>
-            Consider a route away from heavy traffic and adjust the time or
-            intensity of outdoor activity during polluted periods.
+            Choose routes away from heavy traffic. Reduce hard outdoor exercise
+            when pollution is high.
           </p>
         </div>
         <div>
           <Heart size={22} />
           <h3>
             {profile === "general"
-              ? "Keep official guidance close."
-              : "A little extra care."}
+              ? "Check official advice"
+              : "Take extra care"}
           </h3>
           <p>
             {profile === "general"
-              ? "Check official local air-quality advisories before planning strenuous outdoor activity."
-              : "Children, older adults and people with heart or lung conditions can be more vulnerable. Follow your clinician’s individual advice."}
+              ? "Check official air-quality advice before hard outdoor exercise."
+              : "Children, older adults and people with heart or lung conditions may need extra care. Follow your doctor’s advice."}
           </p>
         </div>
       </div>

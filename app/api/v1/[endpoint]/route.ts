@@ -9,7 +9,7 @@ import {
 import { community, contribute, device } from "../../../../server/community";
 import { isValidCell, cellToLatLng } from "h3-js";
 import modelAudit from "../../../../data/bundled/model-audit.json";
-import { bestWindow } from "../../../../lib/air";
+import { bestWindow, fullDate } from "../../../../lib/air";
 const response = (
   value: unknown,
   status = 200,
@@ -176,7 +176,7 @@ export async function GET(
             [
               s.id,
               s.h3,
-              s.origin,
+              snap.kind === "outlook" ? snap.issuedAt : s.origin,
               p.time,
               p.p50,
               p.p10,
@@ -217,7 +217,7 @@ export async function POST(
       return response(
         {
           error:
-            "Remote alert delivery is not configured. Save a local alert preference in the app instead.",
+            "Email and phone alerts are not available. You can save a setting on this device.",
         },
         503,
       );
@@ -263,7 +263,7 @@ export async function POST(
         return response(
           {
             error:
-              "2026 is a historical-analog outlook, not a causal traffic or weather simulation. Select a historical ridge replay.",
+              "The 2026 estimate uses past readings. Choose a past year to change traffic or wind settings.",
           },
           409,
         );
@@ -294,12 +294,16 @@ export async function POST(
         sum = summary(station);
       const answer =
         snap.kind === "outlook"
-          ? `${station.name}’s 2026 historical-analog outlook has a median peak of ${Math.round(sum.peak.p50)} µg/m³ at ${sum.peak.time}. It uses earlier festival seasons, not future observations or weather. The shaded range is historical spread, not calibrated confidence. Forecast method: ${snap.modelVersion}.`
-          : /why|driver|cause/.test(q)
-            ? `${station.name}: the regression combines recent pollution, weather, fires, traffic proxies and timing. These statistical contributions do not establish causal source shares.`
+          ? /why|based|how/.test(q)
+            ? `${station.name}: the 2026 estimate uses readings from the same area and time of day in past Diwalis. It does not use future weather or pollution readings. The range shows how much past readings varied.`
             : /safe|walk|outside|window/.test(q)
-              ? `The lowest modelled 3-hour window for ${station.name} starts at ${sum.bestWindow.start.time}, averaging ${Math.round(sum.bestWindow.mean)} µg/m³. Lower exposure does not mean risk-free. Follow official local guidance.`
-              : `${station.name} has a modelled peak of ${Math.round(sum.peak.p50)} µg/m³ at ${sum.peak.time}. The candidate model forecasts from archived inputs issued ${station.origin}.`;
+              ? `For ${station.name}, the lowest estimated three-hour period starts ${fullDate(sum.bestWindow.start.time)}, at an average of ${Math.round(sum.bestWindow.mean)} µg/m³. This uses past Diwalis. Lower pollution does not mean safe air.`
+              : `${station.name}: the highest 2026 PM2.5 estimate is ${Math.round(sum.peak.p50)} µg/m³ at ${fullDate(sum.peak.time)}. This is based on past Diwalis, not live readings. The shown range is not a guarantee.`
+          : /why|driver|cause|based/.test(q)
+            ? `${station.name}: the model uses recent pollution, weather, fire reports, traffic estimates and time of day. This explains its calculation, not what caused the pollution.`
+            : /safe|walk|outside|window/.test(q)
+              ? `The lowest estimated three-hour period in ${station.name} starts ${fullDate(sum.bestWindow.start.time)}, averaging ${Math.round(sum.bestWindow.mean)} µg/m³. Lower pollution does not mean safe air. Follow official advice.`
+              : `${station.name}: the highest estimated PM2.5 is ${Math.round(sum.peak.p50)} µg/m³ at ${fullDate(sum.peak.time)}. This is a past-year estimate using data saved at ${fullDate(station.origin)}.`;
       return response({
         answer,
         source: {

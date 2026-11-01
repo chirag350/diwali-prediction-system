@@ -6,23 +6,26 @@ test("overview renders real candidate forecasts and supports neighborhood search
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/?snapshot=2025-during");
   await expect(
-    page.getByRole("heading", { name: "The air, a little ahead." }),
+    page.getByRole("heading", { name: "Delhi-NCR air quality" }),
   ).toBeVisible();
   await expect(page.locator(".big-number")).toContainText("/ 500");
-  await expect(page.locator(".big-number")).toContainText("403");
+  await expect(page.locator(".big-number")).toContainText("404");
+  await page
+    .locator(".air-source-toggle")
+    .getByRole("button", { name: "Estimated", exact: true })
+    .click();
+  await expect(page.locator(".big-number")).toContainText("405");
   await page
     .locator(".air-metric-toggle")
     .getByRole("button", { name: "PM2.5", exact: true })
     .click();
   await expect(page.locator(".big-number")).toContainText("µg/m³");
-  await expect(page.locator(".context-bar")).toContainText("REPLAY");
+  await expect(page.locator(".context-bar")).toContainText("PAST YEAR");
   await page.locator(".place-picker").click();
-  await page
-    .getByPlaceholder("Where would you like to breathe easier?")
-    .fill("Punjabi");
+  await page.getByPlaceholder("Search for an area").fill("Punjabi");
   await page.locator(".command-results button").first().click();
   await expect(page.locator(".air-card>h2")).toContainText("Punjabi");
-  const range = page.getByRole("slider", { name: "Forecast hour" });
+  const range = page.getByRole("slider", { name: "Hour shown" });
   await range.focus();
   await range.press("End");
   await expect(range).toHaveValue("71");
@@ -44,19 +47,21 @@ test("replay, report card, explanation and scenarios work", async ({
   page,
 }) => {
   await page.goto("/time-machine?snapshot=2025-during");
-  await page.getByRole("button", { name: "Build-up T−48h" }).click();
-  await expect(page.locator(".context-bar")).toContainText("Build-up");
+  await page
+    .getByRole("button", { name: "Before Diwali Two days before" })
+    .click();
+  await expect(page.locator(".context-bar")).toContainText("Before Diwali");
   await expect(page.locator(".loading-bar")).toHaveCount(0);
-  await page.getByRole("button", { name: "Actual", exact: true }).click();
+  await page.getByRole("button", { name: "Recorded", exact: true }).click();
   await page.goto("/report-card");
   await expect(
-    page.getByRole("heading", { name: "Every horizon, in full." }),
+    page.getByRole("heading", { name: "Errors by forecast time" }),
   ).toBeVisible();
   await expect(
     page
       .locator(".table-card")
       .filter({
-        has: page.getByRole("heading", { name: "Every horizon, in full." }),
+        has: page.getByRole("heading", { name: "Errors by forecast time" }),
       })
       .locator("tbody tr"),
   ).toHaveCount(4);
@@ -66,7 +71,7 @@ test("replay, report card, explanation and scenarios work", async ({
   await expect(page.locator(".contribution-sum")).not.toContainText("NaN");
   await page.goto("/lab?snapshot=2025-during");
   await expect(
-    page.getByRole("heading", { name: "A different set of possibilities." }),
+    page.getByRole("heading", { name: "Change the settings" }),
   ).toBeVisible();
   const wind = page.getByRole("slider", { name: "Wind speed multiplier" });
   if (await wind.isEnabled()) {
@@ -154,7 +159,7 @@ test("all major routes render and mobile navigation stays usable", async ({
   }
   if (testInfo.project.name === "mobile") {
     await page.getByRole("button", { name: "Open navigation" }).click();
-    await page.getByRole("link", { name: "Explore the map" }).click();
+    await page.getByRole("link", { name: "Air map" }).click();
     await expect(page.locator(".sidebar:visible")).not.toHaveClass(
       /sidebar-open/,
     );
@@ -168,7 +173,7 @@ test("shared URLs retain archived hour and widget loads without navigation", asy
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/?snapshot=2023-before&station=site_301&hour=24");
   await expect(page.locator(".context-bar")).toContainText("Diwali 2023");
-  await expect(page.getByRole("slider", { name: "Forecast hour" })).toHaveValue(
+  await expect(page.getByRole("slider", { name: "Hour shown" })).toHaveValue(
     "24",
   );
   await expect(page).toHaveURL(/snapshot=2023-before/);

@@ -51,6 +51,7 @@ type Metrics = {
 };
 const results: Record<string, Metrics> = {};
 for (const seed of latest.stations) {
+  if (seed.measured === null) continue;
   const cache = JSON.parse(
     await readFile(`training/output/cache/${seed.id}.json`, "utf8"),
   );
@@ -82,7 +83,8 @@ for (const seed of latest.stations) {
       ...seed,
       origin: new Date(origin * HOUR).toISOString(),
       history: [],
-      input: { ...seed.input, time: origin - 1 },
+      measured: null,
+      input: { ...seed.input },
       weather: { ...seed.weather, missing: true },
       outlook: {
         sourceYears: years,

@@ -136,3 +136,9 @@ The app now opens on **8 November 2026** with build-up, burst and hangover views
 The analog method has rolling prior-year-only backtests for 2023–2025. On the 2025 festival replay it reduces MAE by 25.0% versus persistence, with 73.1% empirical spread coverage. Phase windows overlap, so forecast pairs are not independent. These retrospective results do not guarantee 2026 skill. Inspect `data/bundled/outlook-backtest.json` and the public report card.
 
 Use the [three-minute demo script](./docs/DEMO-SCRIPT.md). 2026 regression contribution bars and causal scenario controls are disabled because they do not apply to a historical-median curve. Switch to a prior year to use the ridge scenario lab. The original ridge model remains experimental and retains its audit warning.
+
+## Data display corrections
+
+Past-year views now start with recorded station readings. Compare shows 24-hour PM2.5-based AQI first, with hourly PM2.5 separate. All health labels and charts share the same colour scale; Severe is dark red. Times are aligned across compared areas and missing readings stay blank.
+
+The AQI conversion was checked against CPCB’s original calculator spreadsheet. See [the data check](./docs/DATA-CHECK.md) for the Anand Vihar example, source formula and audit of 55,830 recorded entries. PM2.5-only AQI is not full official AQI, and predictions remain estimates.

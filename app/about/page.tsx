@@ -1,6 +1,6 @@
 import Dashboard from "../../components/dashboard";
 import { getSnapshot, registry } from "../../server/forecast";
-export const metadata = { title: "Our methodology" };
+export const metadata = { title: "How it works" };
 export default async function Page() {
   return (
     <Dashboard

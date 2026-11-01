@@ -1,6 +1,6 @@
 "use client";
 import { useId } from "react";
-import { hourLabel, dateLabel } from "../lib/air";
+import { hourLabel, dateLabel, airColor, colors } from "../lib/air";
 import type { Point } from "../lib/types";
 export function ForecastChart({
   points,
@@ -10,14 +10,16 @@ export function ForecastChart({
   actual = false,
   compact = false,
   historical = false,
+  recorded = false,
 }: {
   points: Point[];
   selected?: number;
-  onSelect?: (n: number) => void;
+  onSelect?: (hour: number) => void;
   comparison?: Point[];
   actual?: boolean;
   compact?: boolean;
   historical?: boolean;
+  recorded?: boolean;
 }) {
   const id = useId().replace(/:/g, "");
   const W = 860,
@@ -26,41 +28,86 @@ export function ForecastChart({
     R = 18,
     T = 18,
     B = 35;
-  const max =
-    Math.ceil(
-      Math.max(
-        ...points.map((p) => p.p90),
-        ...(actual ? points.map((p) => p.actual ?? 0) : []),
-        ...(comparison ?? []).map((p) => p.p50),
-      ) / 100,
-    ) * 100 || 100;
+  const value = (p: Point) => (recorded ? p.actual : p.p50);
+  const valid = (v: number | null): v is number =>
+    v !== null && Number.isFinite(v);
+  const numbers = [
+    ...points.map((p) => (recorded ? p.actual : p.p90)),
+    ...(comparison ?? []).map(value),
+    ...(actual ? points.map((p) => p.actual) : []),
+  ].filter(valid);
+  const max = Math.ceil(Math.max(0, ...numbers) / 100) * 100 || 100;
   const x = (i: number) => L + (i / (points.length - 1)) * (W - L - R),
     y = (v: number) => T + (1 - v / max) * (H - T - B);
-  const path = (get: (p: Point) => number) =>
-    points.map((p, i) => `${i ? "L" : "M"}${x(i)},${y(get(p))}`).join(" ");
+  function line(series: Point[], get: (p: Point) => number | null) {
+    let drawing = false;
+    return series
+      .map((p, i) => {
+        const v = get(p);
+        if (!valid(v)) {
+          drawing = false;
+          return "";
+        }
+        const command = drawing ? "L" : "M";
+        drawing = true;
+        return `${command}${x(i)},${y(v)}`;
+      })
+      .join(" ");
+  }
   const area =
-    path((p) => p.p90) +
+    line(points, (p) => p.p90) +
     " " +
     [...points]
       .reverse()
       .map((p, j) => `L${x(points.length - 1 - j)},${y(p.p10)}`)
       .join(" ") +
     " Z";
+  const selectedValue = value(points[selected]);
+  const boundaries = [30, 60, 90, 120, 250];
   return (
     <div className="chart-wrap">
       <svg
         viewBox={`0 0 ${W} ${H}`}
         role="img"
         aria-label={
-          historical
-            ? "72-hour PM2.5 outlook. Green is the historical median; shading is historical 10th to 90th percentile spread, not a calibrated interval."
-            : "72-hour PM2.5 forecast. Green line is the model prediction; shading is the nominal 80 percent uncertainty band."
+          recorded
+            ? "Recorded hourly PM2.5. Gaps mean missing readings. Solid and dashed lines show the two areas. Colours show pollution level."
+            : historical
+              ? "Estimated hourly PM2.5 from past Diwalis. Shading shows the range of past readings, not guaranteed future values."
+              : "Estimated hourly PM2.5. Shading shows the expected range. Colours show pollution level."
         }
       >
         <defs>
-          <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#5e886b" stopOpacity=".22" />
-            <stop offset="100%" stopColor="#5e886b" stopOpacity=".025" />
+          <linearGradient id={`${id}-shade`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#64748b" stopOpacity=".16" />
+            <stop offset="100%" stopColor="#64748b" stopOpacity=".025" />
+          </linearGradient>
+          <linearGradient
+            id={`${id}-health`}
+            gradientUnits="userSpaceOnUse"
+            x1="0"
+            y1={y(0)}
+            x2="0"
+            y2={y(max)}
+          >
+            <stop offset="0%" stopColor={colors[0]} />
+            {boundaries.flatMap((v, i) =>
+              v < max
+                ? [
+                    <stop
+                      key={`${i}-low`}
+                      offset={`${(v / max) * 100}%`}
+                      stopColor={colors[i]}
+                    />,
+                    <stop
+                      key={`${i}-high`}
+                      offset={`${(v / max) * 100}%`}
+                      stopColor={colors[i + 1]}
+                    />,
+                  ]
+                : [],
+            )}
+            <stop offset="100%" stopColor={airColor(max)} />
           </linearGradient>
         </defs>
         {[0, 0.25, 0.5, 0.75, 1].map((f) => (
@@ -84,23 +131,21 @@ export function ForecastChart({
             </text>
           </g>
         ))}
-        <path d={area} fill={`url(#${id})`} />
+        {!recorded && <path d={area} fill={`url(#${id}-shade)`} />}
         <path
-          d={path((p) => p.p50)}
+          d={line(points, value)}
           fill="none"
-          stroke="#37684c"
-          strokeWidth="2.5"
+          stroke={`url(#${id}-health)`}
+          strokeWidth="2.7"
           strokeLinejoin="round"
         />
         {comparison && (
           <path
-            d={comparison
-              .map((p, i) => `${i ? "L" : "M"}${x(i)},${y(p.p50)}`)
-              .join(" ")}
+            d={line(comparison, value)}
             fill="none"
-            stroke="#d18d4c"
-            strokeWidth="2.3"
-            strokeDasharray="5 4"
+            stroke={`url(#${id}-health)`}
+            strokeWidth="2.5"
+            strokeDasharray="6 5"
           />
         )}
         {actual &&
@@ -110,8 +155,8 @@ export function ForecastChart({
                 key={i}
                 cx={x(i)}
                 cy={y(p.actual)}
-                r="2.3"
-                fill="#bf7849"
+                r="2.8"
+                fill={airColor(p.actual)}
               />
             ),
           )}
@@ -133,18 +178,20 @@ export function ForecastChart({
           x2={x(selected)}
           y1={T}
           y2={H - B}
-          stroke="#37684c"
-          opacity=".35"
+          stroke="#64748b"
+          opacity=".5"
           strokeDasharray="3 4"
         />
-        <circle
-          cx={x(selected)}
-          cy={y(points[selected].p50)}
-          r="5"
-          fill="#37684c"
-          stroke="var(--surface)"
-          strokeWidth="3"
-        />
+        {valid(selectedValue) && (
+          <circle
+            cx={x(selected)}
+            cy={y(selectedValue)}
+            r="5"
+            fill={airColor(selectedValue)}
+            stroke="var(--surface)"
+            strokeWidth="3"
+          />
+        )}
         {onSelect &&
           points.map((p, i) => (
             <rect
@@ -156,7 +203,7 @@ export function ForecastChart({
               fill="transparent"
               onClick={() => onSelect(i)}
             >
-              <title>{`${hourLabel(p.time)}: ${Math.round(p.p50)} µg/m³`}</title>
+              <title>{`${hourLabel(p.time)}: ${value(p) === null ? "No recorded reading" : `${Math.round(value(p) ?? 0)} µg/m³`}`}</title>
             </rect>
           ))}
       </svg>

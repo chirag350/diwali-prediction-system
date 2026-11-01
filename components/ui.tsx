@@ -1,4 +1,5 @@
 import { ArrowUpRight, Info } from "lucide-react";
+import { airCategory } from "../lib/air";
 import type { ReactNode } from "react";
 export function Badge({
   children,
@@ -7,7 +8,20 @@ export function Badge({
   children: ReactNode;
   tone?: "neutral" | "green" | "orange";
 }) {
-  return <span className={`badge badge-${tone}`}>{children}</span>;
+  const labels: Record<string, string> = {
+    MODELLED: "ESTIMATE",
+    MEASURED: "RECORDED",
+    CITIZEN: "REPORTED",
+    OUTLOOK: "2026 ESTIMATE",
+    REANALYSIS: "PAST WEATHER",
+    "SATELLITE-DERIVED": "SATELLITE DATA",
+    "GENERATED PROXY": "GENERATED ESTIMATE",
+  };
+  return (
+    <span className={`badge badge-${tone}`}>
+      {typeof children === "string" ? (labels[children] ?? children) : children}
+    </span>
+  );
 }
 export function SectionLabel({ children }: { children: ReactNode }) {
   return <span className="eyebrow">{children}</span>;
@@ -77,8 +91,26 @@ export function Brand({ small = false }: { small?: boolean }) {
         />
       </svg>
       <span>
-        shwāsa<span className="brand-ai">AIR, UNDERSTOOD.</span>
+        shwāsa<span className="brand-ai">AIR QUALITY</span>
       </span>
+    </span>
+  );
+}
+
+/** Health labels must never inherit the app's green brand badge. */
+export function AirStatus({ pm }: { pm: number | null | undefined }) {
+  const category = airCategory(pm);
+  return (
+    <span
+      className="air-category"
+      data-category={category.label}
+      style={{
+        color: category.color,
+        background: category.background,
+        borderColor: category.color,
+      }}
+    >
+      {category.label}
     </span>
   );
 }

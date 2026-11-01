@@ -68,10 +68,28 @@ test("features and inference stay finite and additive", () => {
   expect([6, 7, 24, 25, 48, 49, 72].map(bucket)).toEqual([0, 1, 1, 2, 2, 3, 3]);
 });
 
-test('all origin clock hours can train every horizon bucket',async()=>{
- const {sampleHorizon}=await import('./sampling');const seen=Array.from({length:4},()=>new Set());
- for(let k=0;k<24*365;k++){const time=ist('2023-01-01 00:00:00')+k;const h=sampleHorizon(time,'site_301');expect(h).toBeGreaterThanOrEqual(1);expect(h).toBeLessThanOrEqual(72);seen[bucket(h)].add(k%24);}
- expect(seen.map(s=>s.size)).toEqual([24,24,24,24]);
+test("all origin clock hours can train every horizon bucket", async () => {
+  const { sampleHorizon } = await import("./sampling");
+  const seen = Array.from({ length: 4 }, () => new Set());
+  for (let k = 0; k < 24 * 365; k++) {
+    const time = ist("2023-01-01 00:00:00") + k;
+    const h = sampleHorizon(time, "site_301");
+    expect(h).toBeGreaterThanOrEqual(1);
+    expect(h).toBeLessThanOrEqual(72);
+    seen[bucket(h)].add(k % 24);
+  }
+  expect(seen.map((s) => s.size)).toEqual([24, 24, 24, 24]);
 });
 
-test("PM2.5 concentration is not the rolling-day AQI estimate",async()=>{const {pmSubindex}=await import('../lib/air');expect(pmSubindex(30)).toBe(50);expect(pmSubindex(60)).toBe(100);expect(pmSubindex(90)).toBe(200);expect(pmSubindex(120)).toBe(300);expect(pmSubindex(250)).toBe(400);const snapshot=await import('../data/bundled/snapshots/2025-during.json');const station=snapshot.default.stations.find(s=>s.id==='site_301');expect(Math.round(station.points[0].p50)).toBe(124);expect(pmSubindex(station.points[0].mean24)).toBe(403);});
+test("PM2.5 concentration is not the rolling-day AQI estimate", async () => {
+  const { pmSubindex } = await import("../lib/air");
+  expect(pmSubindex(30)).toBe(50);
+  expect(pmSubindex(60)).toBe(100);
+  expect(pmSubindex(90)).toBe(200);
+  expect(pmSubindex(120)).toBe(300);
+  expect(pmSubindex(250)).toBe(400);
+  const snapshot = await import("../data/bundled/snapshots/2025-during.json");
+  const station = snapshot.default.stations.find((s) => s.id === "site_301");
+  expect(Math.round(station.points[0].p50)).toBe(124);
+  expect(pmSubindex(station.points[0].mean24)).toBe(405);
+});

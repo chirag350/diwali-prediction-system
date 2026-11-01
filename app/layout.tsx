@@ -3,11 +3,11 @@ import type { ReactNode } from "react";
 import "./globals.css";
 export const metadata: Metadata = {
   title: {
-    default: "Shwāsa — The air, a little ahead.",
+    default: "Shwāsa — Delhi-NCR air quality",
     template: "%s · Shwāsa",
   },
   description:
-    "Understand the air around you. Explainable PM2.5 forecasts, Diwali replays, and an honest model report card for Delhi-NCR.",
+    "Air quality estimates for Delhi-NCR. Compare areas, view past Diwali readings, and check model results.",
   applicationName: "Shwāsa",
   manifest: "/manifest.webmanifest",
   icons: { icon: "/icon.svg", apple: "/icon.svg" },

@@ -1,0 +1,23 @@
+{
+  "snapshots": 19,
+  "hourlyPoints": 74880,
+  "derivedIndicesUpdated": 0,
+  "recordedValuesMatchedToSourceCache": 55830,
+  "missingValuesKeptMissing": 19050,
+  "observationsAltered": 0,
+  "predictionsAltered": 0,
+  "anandVihar2025": {
+    "time": "2025-10-20T12:30:00.000Z",
+    "hourlyPredictedPm": 124.1919693529128,
+    "hourlyRecordedPm": 79,
+    "predictedDayMean": 256.63299872303804,
+    "predictedPmAqi": 405,
+    "recordedDayMean": 254.75,
+    "recordedPmAqi": 404,
+    "category": "Severe",
+    "severityColor": "#7f1d1d"
+  },
+  "aqiFormulaSource": "https://cpcb.nic.in/upload/national-air-quality-index/AQI-Calculator.xls",
+  "aqiFormula": "Cell D10; continuous piecewise formula; unrounded 24-hour concentration; final rounded display capped at 500",
+  "limits": "Indices use PM2.5 only, not official multi-pollutant AQI. Recorded values are checked against the prepared CPCB cache, not independently certified. Model predictions remain uncertain."
+}

@@ -1,9 +1,9 @@
 import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Shwāsa — Air, understood.",
+    name: "Shwāsa — Air quality",
     short_name: "Shwāsa",
-    description: "Your neighborhood air, a little ahead.",
+    description: "Air quality estimates for Delhi-NCR.",
     start_url: "/",
     display: "standalone",
     background_color: "#f6f6ef",

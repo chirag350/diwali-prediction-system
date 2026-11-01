@@ -1,11 +1,12 @@
 import type { Point } from "./types";
+// Health-category colours are shared by every air-quality view.
 export const colors = [
-  "#6d9b73",
-  "#a4ac58",
-  "#dbb653",
-  "#d78650",
-  "#b85d52",
-  "#854551",
+  "#15803d",
+  "#65a30d",
+  "#ca8a04",
+  "#ea580c",
+  "#dc2626",
+  "#7f1d1d",
 ];
 export const categories = [
   "Good",
@@ -16,31 +17,44 @@ export const categories = [
   "Severe",
 ];
 export function level(pm: number) {
-  return pm <= 30
+  if (!Number.isFinite(pm) || pm < 0) return -1;
+  const index = pmSubindex(pm);
+  return index <= 50
     ? 0
-    : pm <= 60
+    : index <= 100
       ? 1
-      : pm <= 90
+      : index <= 200
         ? 2
-        : pm <= 120
+        : index <= 300
           ? 3
-          : pm <= 250
+          : index <= 400
             ? 4
             : 5;
 }
 export function airColor(pm: number) {
-  return colors[level(pm)];
+  return colors[level(pm)] ?? "#737373";
 }
+/** Exact piecewise PM2.5 formula from CPCB's AQI-Calculator.xls (cell D10).
+ * Input is the unrounded 24-hour concentration. Round only the final index.
+ * The display is capped at 500; hourly concentrations remain visible above it.
+ * https://cpcb.nic.in/upload/national-air-quality-index/AQI-Calculator.xls
+ */
 export function pmSubindex(pm: number) {
-  const p = Math.round(pm);
-  const lo = [0, 31, 61, 91, 121, 251],
-    hi = [30, 60, 90, 120, 250, 500],
-    il = [0, 51, 101, 201, 301, 401],
-    ih = [50, 100, 200, 300, 400, 500];
-  const i = level(p);
-  return Math.round(
-    Math.min(500, il[i] + ((p - lo[i]) / (hi[i] - lo[i])) * (ih[i] - il[i])),
-  );
+  if (!Number.isFinite(pm) || pm < 0)
+    throw new RangeError("PM2.5 must be a non-negative number");
+  const index =
+    pm <= 30
+      ? (pm * 50) / 30
+      : pm <= 60
+        ? 50 + ((pm - 30) * 50) / 30
+        : pm <= 90
+          ? 100 + ((pm - 60) * 100) / 30
+          : pm <= 120
+            ? 200 + ((pm - 90) * 100) / 30
+            : pm <= 250
+              ? 300 + ((pm - 120) * 100) / 130
+              : 400 + ((pm - 250) * 100) / 130;
+  return Math.round(Math.min(500, index));
 }
 export function hourLabel(t: string) {
   return new Date(t)
@@ -111,4 +125,19 @@ export function observedDayMean(
   return values.length >= 18
     ? values.reduce((a, b) => a + b, 0) / values.length
     : null;
+}
+
+export function airCategory(pm: number | null | undefined) {
+  const index = pm === null || pm === undefined ? -1 : level(pm);
+  return {
+    index,
+    label: index < 0 ? "No data" : categories[index],
+    color: index < 0 ? "#525252" : colors[index],
+    background:
+      index < 0
+        ? "#f5f5f5"
+        : ["#dcfce7", "#ecfccb", "#fef9c3", "#ffedd5", "#fee2e2", "#fecaca"][
+            index
+          ],
+  };
 }

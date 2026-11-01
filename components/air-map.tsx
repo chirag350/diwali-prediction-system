@@ -22,10 +22,11 @@ type Cell = {
   distance: number;
 };
 const polygon = delhiNcr.map.polygon;
-function value(stations: Station[], hour: number, layer: string, mode: string) {
+function value(stations: Station[], time: string, layer: string, mode: string) {
   return Object.fromEntries(
     stations.map((s) => {
-      const p = s.points[hour];
+      const p = s.points.find((p) => p.time === time);
+      if (!p) return [s.id, null];
       return [
         s.id,
         layer === "uncertainty"
@@ -56,7 +57,7 @@ export default function AirMap({
   onSelect: (id: string) => void;
   layer?: string;
   mode?: string;
-  scenarioValues?: Record<string, number>;
+  scenarioValues?: Record<string, number | null>;
 }) {
   const host = useRef<HTMLDivElement>(null),
     map = useRef<MapType | null>(null);
@@ -104,7 +105,15 @@ export default function AirMap({
     [stations],
   );
   const data = useMemo(() => {
-    const values = scenarioValues ?? value(stations, hour, layer, mode);
+    const values =
+      scenarioValues ??
+      value(
+        stations,
+        (stations.find((s) => s.id === selected) ?? stations[0]).points[hour]
+          .time,
+        layer,
+        mode,
+      );
     return {
       type: "FeatureCollection" as const,
       features: cells.map((c) => {
@@ -131,13 +140,31 @@ export default function AirMap({
                     : "#c49775"
                 : v === null
                   ? "#d2d5cc"
-                  : airColor(v),
+                  : layer === "uncertainty"
+                    ? v < 30
+                      ? "#dbeafe"
+                      : v < 60
+                        ? "#93c5fd"
+                        : v < 120
+                          ? "#3b82f6"
+                          : v < 250
+                            ? "#1d4ed8"
+                            : "#1e3a8a"
+                    : mode === "diff"
+                      ? v < 30
+                        ? "#ede9fe"
+                        : v < 90
+                          ? "#c4b5fd"
+                          : v < 250
+                            ? "#8b5cf6"
+                            : "#5b21b6"
+                      : airColor(v),
             h3: c.id,
           },
         };
       }),
     };
-  }, [cells, stations, hour, layer, mode, scenarioValues]);
+  }, [cells, stations, selected, hour, layer, mode, scenarioValues]);
   useEffect(() => {
     if (!host.current) return;
     let m: MapType;
@@ -326,8 +353,8 @@ export default function AirMap({
       <span className="river-label">Yamuna</span>
       <div className="map-top">
         <span className="map-tag">
-          <span className="tiny-dot" /> {cells.length.toLocaleString()} H3 cells{" "}
-          <span className="muted">· res 8</span>
+          <span className="tiny-dot" /> {cells.length.toLocaleString()} map
+          areas{" "}
         </span>
         <button
           className={`map-tag ${showStations ? "selected-tag" : ""}`}
@@ -389,8 +416,8 @@ export default function AirMap({
           <strong>{s.name}</strong>
           <span>
             {s.outlook
-              ? "Historical-analog outlook"
-              : "Station-supported estimate"}
+              ? "Estimate from past Diwalis"
+              : "Based on nearby stations"}
           </span>
         </div>
       </div>
@@ -408,7 +435,7 @@ export default function AirMap({
             {layer === "confidence"
               ? "Distance to station"
               : layer === "uncertainty"
-                ? "Band width"
+                ? "Range width"
                 : mode === "diff"
                   ? "Absolute forecast error"
                   : "PM2.5"}
@@ -423,7 +450,17 @@ export default function AirMap({
                   background:
                     "linear-gradient(to right,#789a70,#b6b172,#c49775)",
                 }
-              : undefined
+              : layer === "uncertainty"
+                ? {
+                    background:
+                      "linear-gradient(to right,#dbeafe,#93c5fd,#3b82f6,#1e3a8a)",
+                  }
+                : mode === "diff"
+                  ? {
+                      background:
+                        "linear-gradient(to right,#ede9fe,#c4b5fd,#8b5cf6,#5b21b6)",
+                    }
+                  : undefined
           }
         />
         <div className="legend-values">
@@ -436,8 +473,8 @@ export default function AirMap({
         </div>
       </div>
       <div className="map-attribution">
-        {!ready || failed ? "Offline schematic · " : ""}IDW interpolation ·
-        spatial validation pending{" "}
+        {!ready || failed ? "Simple map · " : ""}Estimates from nearby stations
+        · local accuracy not yet checked{" "}
         <span>
           ©{" "}
           <a

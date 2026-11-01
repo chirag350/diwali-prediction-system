@@ -4,11 +4,11 @@ export default function NotFound() {
   return (
     <main className="not-found">
       <Brand />
-      <span className="eyebrow">A LITTLE OFF THE MAP</span>
-      <h1>Let’s find your way back.</h1>
-      <p>This page isn’t here. Your neighborhood forecast is.</p>
+      <span className="eyebrow">404</span>
+      <h1>Page not found</h1>
+      <p>Check the address or go to the home page.</p>
       <Link className="primary-button" href="/">
-        Back to your air ↗
+        Go to home ↗
       </Link>
     </main>
   );

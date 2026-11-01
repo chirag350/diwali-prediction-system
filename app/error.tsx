@@ -5,12 +5,9 @@ export default function ErrorPage({ reset }: { reset: () => void }) {
   return (
     <main className="not-found">
       <Brand />
-      <span className="eyebrow">A MOMENT TO CATCH OUR BREATH</span>
-      <h1>This view couldn’t load.</h1>
-      <p>
-        Your archived forecasts are still available. Try loading this page
-        again.
-      </p>
+      <span className="eyebrow">PAGE ERROR</span>
+      <h1>This page could not load</h1>
+      <p>Please try again.</p>
       <button className="primary-button" onClick={reset}>
         Try again ↗
       </button>

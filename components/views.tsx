@@ -25,13 +25,13 @@ import {
 import type { Registry, Snapshot, Station, Point } from "../lib/types";
 import {
   airColor,
-  categories,
+  pmSubindex,
+  observedDayMean,
   clearBy,
   dateLabel,
   download,
   fullDate,
   hourLabel,
-  level,
   peak,
 } from "../lib/air";
 import modelJson from "../models/national-v1.json";
@@ -39,25 +39,25 @@ import outlookBacktest from "../data/bundled/outlook-backtest.json";
 import modelAudit from "../data/bundled/model-audit.json";
 import { predict, type Artifact } from "../training/model";
 import { ForecastChart } from "./forecast-chart";
-import { Badge, CardHead, InfoNote, SectionLabel } from "./ui";
+import { AirStatus, Badge, CardHead, InfoNote, SectionLabel } from "./ui";
 const AirMap = dynamic(() => import("./air-map"), {
   ssr: false,
-  loading: () => <div className="map-loading">Preparing the scenario map…</div>,
+  loading: () => <div className="map-loading">Loading the map…</div>,
 });
 const model = modelJson as Artifact;
 function groups(station: Station, hour: number) {
   const result = predict(model, { ...station.input, horizon: hour + 1 });
   const groups: Record<string, number> = {
-    "Baseline & location": 0,
+    "Area and starting level": 0,
     "Recent pollution": 0,
     "Weather & wind": 0,
     "Regional fires": 0,
-    "Traffic proxy": 0,
+    "Estimated traffic": 0,
     "Time & festival": 0,
   };
   for (const [name, v] of Object.entries(result.contributions)) {
     const key = ["intercept", "latitude", "longitude"].includes(name)
-      ? "Baseline & location"
+      ? "Area and starting level"
       : name.startsWith("pm_")
         ? "Recent pollution"
         : [
@@ -72,7 +72,7 @@ function groups(station: Station, hour: number) {
           : name.startsWith("fire_")
             ? "Regional fires"
             : name.startsWith("traffic")
-              ? "Traffic proxy"
+              ? "Estimated traffic"
               : "Time & festival";
     groups[key] += v;
   }
@@ -82,31 +82,29 @@ export function WhyView({ station, hour }: { station: Station; hour: number }) {
   const data = groups(station, hour),
     max = Math.max(...Object.values(data.groups).map(Math.abs));
   const descriptions: Record<string, string> = {
-    "Baseline & location":
-      "The shared regression intercept and geographical features.",
-    "Recent pollution":
-      "The current reading, yesterday’s reading, and trailing-day average.",
+    "Area and starting level":
+      "The model’s starting value and the area’s location.",
+    "Recent pollution": "Recent pollution readings and the past day’s average.",
     "Weather & wind": station.weather.missing
-      ? "Weather defaults are active; the missing-data indicator also contributes."
-      : "Origin temperature, humidity and the speed and direction of wind.",
+      ? "Weather data is missing. The model uses a default value and records the gap."
+      : "Temperature, humidity and wind when the forecast starts.",
     "Regional fires": station.input.fireMissing
-      ? "No fire total for this date. A missing-data feature is active."
-      : "A delayed, regional satellite fire-activity proxy, not local smoke measurements.",
-    "Traffic proxy": station.input.trafficMissing
-      ? "No matched corridor. The missing-data indicator contributes."
-      : "A generated historical corridor-traffic proxy, not measured emissions.",
-    "Time & festival":
-      "The forecast hour, season, horizon and Diwali proximity.",
+      ? "Fire data is missing for this date."
+      : "Earlier satellite fire reports. These do not measure smoke in this area.",
+    "Estimated traffic": station.input.trafficMissing
+      ? "No traffic data is available for this area."
+      : "Past traffic estimates, not recorded vehicle emissions.",
+    "Time & festival": "Time of day, season and days before or after Diwali.",
   };
   return (
     <>
       <div className="why-intro">
         <div>
-          <SectionLabel>OPEN THE MODEL</SectionLabel>
+          <SectionLabel>ESTIMATE DETAILS</SectionLabel>
           <h2>
-            Every number has
+            What affects
             <br />
-            <em>a few things behind it.</em>
+            <em>this estimate</em>
           </h2>
           <p>
             For {station.name}, {dateLabel(station.points[hour].time)} at{" "}
@@ -116,18 +114,18 @@ export function WhyView({ station, hour }: { station: Station; hour: number }) {
         </div>
         <div className="why-total">
           <Wind size={25} />
-          <strong>
+          <strong style={{ color: airColor(data.result.p50) }}>
             {Math.round(data.result.p50)}
             <span> µg/m³</span>
           </strong>
-          <Badge tone="green">MODELLED</Badge>
+          <Badge>MODELLED</Badge>
         </div>
       </div>
       <div className="why-grid">
         <section className="card">
           <CardHead
-            title="The forecast, taken apart."
-            subtitle="Exact additive regression contributions · µg/m³"
+            title="What affects the estimate"
+            subtitle="How each part changes the estimate · µg/m³"
           />
           <div className="contribution-bars">
             {Object.entries(data.groups).map(([name, value], i) => (
@@ -152,13 +150,13 @@ export function WhyView({ station, hour }: { station: Station; hour: number }) {
             ))}
             {data.result.clippingAdjustment !== 0 && (
               <p>
-                Nonnegative clipping adjustment:{" "}
+                Adjustment to keep the estimate above zero:{" "}
                 {data.result.clippingAdjustment.toFixed(1)}
               </p>
             )}
           </div>
           <div className="contribution-sum">
-            <span>Sum of contributions</span>
+            <span>Total estimate</span>
             <strong>{data.result.p50.toFixed(1)} µg/m³</strong>
           </div>
         </section>
@@ -175,9 +173,8 @@ export function WhyView({ station, hour }: { station: Station; hour: number }) {
         </div>
       </div>
       <InfoNote>
-        These explain how the regression calculates its answer. They do not
-        measure the fraction of pollution caused by crackers, traffic, or fires.
-        Correlated inputs are not causal evidence.
+        These values explain the model’s calculation. They do not prove how much
+        pollution came from traffic, fires or crackers.
       </InfoNote>
     </>
   );
@@ -244,40 +241,40 @@ export function LabView({
   const original = peak(station.points),
     changed = peak(points),
     clear = clearBy(points);
+  const referenceTime = station.points[hour].time;
   const values = useMemo(
     () =>
       Object.fromEntries(
         snapshot.stations.map((s) => [
           s.id,
-          modified(s, traffic, wind)[hour].p50,
+          modified(s, traffic, wind).find((p) => p.time === referenceTime)
+            ?.p50 ?? null,
         ]),
       ),
-    [snapshot.stations, traffic, wind, hour],
+    [snapshot.stations, traffic, wind, referenceTime],
   );
   return (
     <>
       <InfoNote>
-        Scenario estimate, not a forecast. We change inputs to the fitted
-        regression, keeping other inputs fixed. This does not establish an
-        intervention’s real-world effect. Bands are heuristically widened by
-        20%.
+        This is an example, not a forecast or proof of a policy’s effect. Only
+        traffic and wind settings change. The displayed range is made 20% wider.
       </InfoNote>
       <div className="lab-grid">
         <section className="card lab-controls">
           <CardHead
-            title="A different set of possibilities."
-            subtitle="Start with the conditions you can explore."
+            title="Change the settings"
+            subtitle="Adjust traffic and wind below."
           />
           <div className="slider-control">
             <div>
               <TrafficCone size={20} />
-              <strong>Traffic proxy</strong>
+              <strong>Estimated traffic</strong>
               <span>
                 {traffic > 0 ? "+" : ""}
                 {traffic}%
               </span>
             </div>
-            <p>Change the generated traffic-volume input.</p>
+            <p>Change the estimated amount of traffic.</p>
             <input
               type="range"
               min="-40"
@@ -294,18 +291,17 @@ export function LabView({
             </div>
             {!!station.input.trafficMissing && (
               <small className="warning-text">
-                No matched traffic corridor for this place. Choose Anand Vihar
-                or another covered station.
+                No traffic estimate is available here. Try Anand Vihar.
               </small>
             )}
           </div>
           <div className="slider-control">
             <div>
               <Wind size={20} />
-              <strong>Ventilation</strong>
+              <strong>Wind speed</strong>
               <span>{wind.toFixed(2)}×</span>
             </div>
-            <p>Scale the origin wind-speed input.</p>
+            <p>Change the wind speed used by the model.</p>
             <input
               type="range"
               min=".5"
@@ -322,7 +318,7 @@ export function LabView({
             </div>
             {station.weather.missing && (
               <small className="warning-text">
-                Origin weather is missing; this control is unavailable.
+                Wind data is missing, so this setting is off.
               </small>
             )}
           </div>
@@ -331,8 +327,7 @@ export function LabView({
             <div>
               <strong>Crackers, dust & sprinkling</strong>
               <p>
-                The baseline has no independently validated causal controls for
-                these drivers.
+                The model cannot reliably show the effects of these changes yet.
               </p>
             </div>
             <Badge>Next model</Badge>
@@ -371,21 +366,21 @@ export function LabView({
         <div className="lab-result">
           <div className="scenario-stats">
             <div>
-              <SectionLabel>BASELINE PEAK</SectionLabel>
+              <SectionLabel>ORIGINAL HIGHEST VALUE</SectionLabel>
               <strong>
                 {Math.round(original.p50)}
                 <small> µg/m³</small>
               </strong>
             </div>
             <div>
-              <SectionLabel>SCENARIO PEAK</SectionLabel>
+              <SectionLabel>NEW HIGHEST VALUE</SectionLabel>
               <strong>
                 {Math.round(changed.p50)}
                 <small> µg/m³</small>
               </strong>
             </div>
             <div>
-              <SectionLabel>ESTIMATED CHANGE</SectionLabel>
+              <SectionLabel>CHANGE</SectionLabel>
               <strong
                 className={
                   changed.p50 <= original.p50 ? "green-text" : "warm-text"
@@ -399,15 +394,15 @@ export function LabView({
           </div>
           <section className="card">
             <CardHead
-              title="The same place. A different input."
-              subtitle={`${station.name} · green: baseline · orange: scenario`}
+              title="Original and changed estimates"
+              subtitle={`${station.name} · solid: original · dashed: changed`}
             />
             <ForecastChart points={station.points} comparison={points} />
           </section>
           <div className="scenario-details">
             <span>
               <Sun size={16} />
-              Scenario clear-by:{" "}
+              Lower pollution after:{" "}
               <strong>
                 {clear
                   ? `${dateLabel(clear.time)}, ${hourLabel(clear.time)}`
@@ -424,8 +419,8 @@ export function LabView({
       </div>
       <section className="card map-card scenario-map">
         <CardHead
-          title="See the change across the city."
-          subtitle="The same input adjustments applied to each station, then interpolated to H3 cells."
+          title="Changes on the map"
+          subtitle="The same settings are applied across the map."
         />
         <AirMap
           stations={snapshot.stations}
@@ -441,81 +436,217 @@ export function LabView({
 export function CompareView({
   stations,
   station,
+  hour,
+  onHourChange,
 }: {
   stations: Station[];
   station: Station;
+  hour: number;
+  onHourChange: (hour: number) => void;
 }) {
   const [second, setSecond] = useState(
     stations.find((s) => s.id !== station.id)?.id ?? station.id,
   );
-  const other = stations.find((s) => s.id === second) ?? stations[0];
-  const firstPeak = peak(station.points),
-    secondPeak = peak(other.points);
+  const [preferredMode, setPreferredMode] = useState<"recorded" | "estimate">(
+    "recorded",
+  );
+  const future = !!station.outlook;
+  const recorded = !future && preferredMode === "recorded";
+  const other =
+    stations.find((s) => s.id === second) ??
+    stations.find((s) => s.id !== station.id) ??
+    station;
+  const current = (s: Station) => {
+    const index = s.points.findIndex(
+      (p) => p.time === station.points[hour].time,
+    );
+    const p = index < 0 ? null : s.points[index];
+    const mean =
+      p === null
+        ? null
+        : recorded
+          ? observedDayMean(s, index)
+          : p.aqi === null
+            ? null
+            : p.mean24;
+    return {
+      p,
+      mean,
+      aqi: mean === null ? null : pmSubindex(mean),
+      pm: p === null ? null : recorded ? p.actual : p.p50,
+    };
+  };
   return (
     <>
-      <div className="compare-grid">
-        {[station, other].map((s, i) => (
-          <section
-            className={`card compare-card ${i ? "comparison-warm" : ""}`}
-            key={`${i}-${s.id}`}
+      <div className="compare-toolbar">
+        <div className="segmented">
+          <button
+            className={recorded ? "active" : ""}
+            disabled={future}
+            title={
+              future
+                ? "There are no recorded readings for Diwali 2026 yet"
+                : "Use station readings"
+            }
+            onClick={() => setPreferredMode("recorded")}
           >
-            <SectionLabel>
-              {i ? "THE OTHER SIDE OF TOWN" : "YOUR SELECTED PLACE"}
-            </SectionLabel>
-            {i ? (
-              <select
-                aria-label="Second neighborhood"
-                value={second}
-                onChange={(e) => setSecond(e.target.value)}
+            Recorded
+          </button>
+          <button
+            className={!recorded ? "active" : ""}
+            onClick={() => setPreferredMode("estimate")}
+          >
+            Estimated
+          </button>
+        </div>
+        <div className="compare-time">
+          <label htmlFor="compare-hour">Time shown · IST</label>
+          <select
+            id="compare-hour"
+            value={hour}
+            onChange={(e) => onHourChange(Number(e.target.value))}
+          >
+            {station.points.map((p, i) => (
+              <option key={p.hour} value={i}>
+                {fullDate(p.time)}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+      <InfoNote>
+        AQI below uses PM2.5 only, averaged over 24 hours. It is not the full
+        official AQI.{" "}
+        {future
+          ? "2026 values are estimates from past Diwalis."
+          : recorded
+            ? "Recorded values use station readings. Missing readings are left blank."
+            : "These are experimental estimates. Switch to Recorded to see station data."}
+      </InfoNote>
+      <div className="compare-grid">
+        {[station, other].map((s, i) => {
+          const data = current(s);
+          const aligned = station.points.map((target) =>
+            s.points.find((p) => p.time === target.time),
+          );
+          const available = aligned
+            .map((p) => (p ? (recorded ? p.actual : p.p50) : null))
+            .filter((v): v is number => v !== null);
+          const first48 = aligned
+            .slice(0, 48)
+            .map((p) => (p ? (recorded ? p.actual : p.p50) : null))
+            .filter((v): v is number => v !== null);
+          return (
+            <section
+              className={`card compare-card ${i ? "comparison-warm" : ""}`}
+              key={`${i}-${s.id}`}
+              style={{
+                borderTopColor:
+                  data.mean === null ? "#737373" : airColor(data.mean),
+              }}
+            >
+              <SectionLabel>{i ? "SECOND AREA" : "FIRST AREA"}</SectionLabel>
+              {i ? (
+                <select
+                  aria-label="Second area"
+                  value={other.id}
+                  onChange={(e) => setSecond(e.target.value)}
+                >
+                  {stations.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <h2>{s.name}</h2>
+              )}
+              <p className="compare-source">
+                {recorded ? "From recorded PM2.5" : "Estimated from PM2.5"} ·{" "}
+                {fullDate(station.points[hour].time)}
+              </p>
+              <div
+                className="compare-number"
+                style={{
+                  color: data.mean === null ? "#737373" : airColor(data.mean),
+                }}
               >
-                {stations.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <h2>{s.name}</h2>
-            )}
-            <div className="compare-number">
-              {Math.round(s.points[0].p50)}
-              <span>µg/m³ · +1h</span>
-            </div>
-            <Badge tone={i ? "orange" : "green"}>
-              {categories[level(s.points[0].mean24)]} · 24h PM2.5 band
-            </Badge>
-            <div className="compare-row">
-              <span>48h peak</span>
-              <strong>{Math.round(peak(s.points).p50)} µg/m³</strong>
-            </div>
-            <div className="compare-row">
-              <span>Hours above 90 µg/m³</span>
-              <strong>{s.points.filter((p) => p.p50 > 90).length} / 72h</strong>
-            </div>
-            <div className="compare-row">
-              <span>Origin</span>
-              <strong>{fullDate(s.origin)}</strong>
-            </div>
-          </section>
-        ))}
+                {data.aqi ?? "—"}
+                <span>/ 500</span>
+              </div>
+              <p className="compare-metric-label">24-hour AQI · PM2.5 only</p>
+              <AirStatus pm={data.mean} />
+              <div className="compare-row">
+                <span>
+                  Hourly PM2.5 · {recorded ? "recorded" : "estimated"}
+                </span>
+                <strong>
+                  {data.pm === null
+                    ? "No reading"
+                    : `${Math.round(data.pm)} µg/m³`}
+                </strong>
+              </div>
+              <div className="compare-row">
+                <span>24-hour average PM2.5</span>
+                <strong>
+                  {data.mean === null
+                    ? "Not enough readings"
+                    : `${data.mean.toFixed(1)} µg/m³`}
+                </strong>
+              </div>
+              <div className="compare-row">
+                <span>Highest PM2.5 over 48 hours</span>
+                <strong>
+                  {first48.length
+                    ? `${Math.round(Math.max(...first48))} µg/m³`
+                    : "No readings"}
+                </strong>
+              </div>
+              <div className="compare-row">
+                <span>Hours above 90 µg/m³</span>
+                <strong>
+                  {available.filter((v) => v > 90).length} / {available.length}{" "}
+                  {recorded ? "recorded hours" : "hours"}
+                </strong>
+              </div>
+              <div className="compare-row">
+                <span>
+                  {future ? "Estimate period starts" : "Starting data"}
+                </span>
+                <strong>{fullDate(s.origin)}</strong>
+              </div>
+            </section>
+          );
+        })}
       </div>
       <section className="card">
         <CardHead
-          title="Their next three days, together."
-          subtitle={`Green: ${station.name} · Orange: ${other.name}`}
+          title={recorded ? "Recorded hourly PM2.5" : "Estimated hourly PM2.5"}
+          subtitle={`Solid line: ${station.name} · dashed line: ${other.name} · µg/m³`}
         />
         <ForecastChart
           points={station.points}
-          comparison={other.points}
-          historical={!!station.outlook}
+          comparison={station.points.map(
+            (target) =>
+              other.points.find((p) => p.time === target.time) ?? {
+                ...target,
+                p10: NaN,
+                p50: NaN,
+                p90: NaN,
+                actual: null,
+                aqi: null,
+                mean24: NaN,
+              },
+          )}
+          selected={hour}
+          onSelect={onHourChange}
+          historical={future}
+          recorded={recorded}
         />
       </section>
       <InfoNote>
-        {firstPeak.p50 >= secondPeak.p50 ? station.name : other.name} has the
-        higher modelled peak by{" "}
-        {Math.round(Math.abs(firstPeak.p50 - secondPeak.p50))} µg/m³. This is a
-        comparison of archived model predictions, not a measured neighborhood
-        ranking.
+        Colours show pollution level. Dark red means Severe. The chart uses
+        hourly PM2.5; the AQI cards use a 24-hour average.
       </InfoNote>
     </>
   );
@@ -527,28 +658,21 @@ export function ReportCardView({ registry }: { registry: Registry }) {
     coverage = m.reduce((a, b) => a + b.n * b.coverage, 0) / total;
   return (
     <>
-      <div className="error-banner" role="status">
-        <span>
-          <strong>Model recheck: peak forecasts are unreliable.</strong> The v1
-          horizon sampler is biased by time of day. Below are historical
-          national metrics, not validation of Delhi Diwali peaks.
-        </span>
-      </div>
       <section className="card table-card">
         <CardHead
-          title="What the Diwali recheck found"
-          subtitle="2025 burst replay · measured targets, in µg/m³ · overlapping replay pairs"
+          title="Errors during Diwali 2025"
+          subtitle="Estimates compared with recorded PM2.5 · µg/m³. Some time periods overlap."
         />
         <div className="table-scroll">
           <table>
             <thead>
               <tr>
                 <th>Observed PM2.5</th>
-                <th>Pairs</th>
-                <th>Mean prediction</th>
-                <th>Mean measured</th>
-                <th>MAE</th>
-                <th>80% band coverage</th>
+                <th>Readings checked</th>
+                <th>Average estimate</th>
+                <th>Average recorded value</th>
+                <th>Average error</th>
+                <th>Readings in expected range</th>
               </tr>
             </thead>
             <tbody>
@@ -570,19 +694,19 @@ export function ReportCardView({ registry }: { registry: Registry }) {
       </section>
       <section className="card table-card">
         <CardHead
-          title="The 2026 outlook has its own test."
-          subtitle="Historical-analog member · rolling prior-year-only backtests · overlapping phase windows"
+          title="Checks for the 2026 method"
+          subtitle="For each past year, estimates used only earlier years. Some time periods overlap."
         />
         <div className="table-scroll">
           <table>
             <thead>
               <tr>
-                <th>Target festival</th>
-                <th>Forecast pairs</th>
-                <th>MAE · µg/m³</th>
-                <th>Persistence MAE</th>
-                <th>MAE improvement</th>
-                <th>Historical spread coverage</th>
+                <th>Year checked</th>
+                <th>Estimates checked</th>
+                <th>Average error · µg/m³</th>
+                <th>Last-reading error</th>
+                <th>Error reduction</th>
+                <th>Readings in past range</th>
               </tr>
             </thead>
             <tbody>
@@ -604,53 +728,54 @@ export function ReportCardView({ registry }: { registry: Registry }) {
           </table>
         </div>
         <div className="advice-foot">
-          No target year is used in its own analog set. These are retrospective
-          checks, not a guarantee for 2026. The band is empirical historical
-          spread and is not calibrated to 80% coverage.
+          Each year is checked using earlier years only. Good past results do
+          not guarantee good 2026 estimates. The range shows past readings, not
+          guaranteed future limits.
         </div>
       </section>
       <div className="report-hero">
         <div>
           <Badge tone="green">
             <ShieldCheck size={12} />
-            ON THE RECORD
+            MODEL CHECKS
           </Badge>
           <h2>
-            Useful is something
+            How accurate
             <br />
-            we have to <em>prove.</em>
+            is the <em>model?</em>
           </h2>
           <p>
-            Train through 2023. Calibrate on 2024. Test on 2025.
+            Built using data through 2023. Ranges checked in 2024. Results
+            compared in 2025.
             <br />
-            No random splits. No invented accuracy percentage.
+            Errors are shown below.
           </p>
         </div>
         <div className="report-stamp">
-          <span>HELD-OUT TEST</span>
+          <span>YEAR CHECKED</span>
           <strong>2025</strong>
           <span>{(total / 1e6).toFixed(2)}M forecast pairs</span>
         </div>
       </div>
       <div className="metric-grid">
         <Metric
-          label="MEAN ABSOLUTE ERROR"
+          label="AVERAGE ERROR"
           number={mae.toFixed(2)}
           unit="µg/m³"
-          note="Across all forecast horizons"
+          note="Across all forecast times"
         />
         <Metric
-          label="BEST BUCKET SKILL"
+          label="LARGEST ERROR REDUCTION"
           number={`${(m[1].skill * 100).toFixed(1)}%`}
-          note="Lower MAE than persistence · 7–24h"
+          note="Less error than keeping the last reading · 7–24h"
         />
         <Metric
-          label="80% BAND COVERAGE"
+          label="READINGS WITHIN THE RANGE"
           number={`${(coverage * 100).toFixed(1)}%`}
-          note="Actual observations inside the band"
+          note="Share of readings inside the expected range"
         />
         <Metric
-          label="TRAINING NETWORK"
+          label="STATIONS USED"
           number={String(registry.model.stations)}
           note={`${(registry.model.hourlyRows / 1e6).toFixed(1)}M valid hourly readings`}
         />
@@ -658,17 +783,17 @@ export function ReportCardView({ registry }: { registry: Registry }) {
       <div className="report-charts">
         <section className="card">
           <CardHead
-            title="A little better than ‘same as now’."
-            subtitle="MAE in µg/m³ · lower is better"
+            title="Model versus the last reading"
+            subtitle="Average error · µg/m³ · lower is better"
           />
           <div className="bar-legend">
             <span>
               <i style={{ background: "#496c53" }} />
-              Custom ridge model
+              Our model
             </span>
             <span>
               <i style={{ background: "#ddd9c9" }} />
-              Persistence baseline
+              Keep the last reading
             </span>
           </div>
           <div className="metric-bars">
@@ -702,28 +827,25 @@ export function ReportCardView({ registry }: { registry: Registry }) {
         </section>
         <section className="card calibration-card">
           <CardHead
-            title="Leaving room for uncertainty."
-            subtitle="Expected 80%. Observed 82.7%."
+            title="How often was the range right?"
+            subtitle="Target: 80%. Result: 82.7%."
           />
           <div className="coverage-dots">
             {Array.from({ length: 100 }, (_, i) => (
               <span className={i < 83 ? "covered" : ""} key={i} />
             ))}
           </div>
-          <p>
-            About 83 in 100 observations fell within our prediction band.
-            Coverage is within our initial 75–85% evaluation target.
-          </p>
+          <p>About 83 out of 100 readings fell inside the expected range.</p>
           <Badge tone="green">
             <Check size={12} />
-            Measured on held-out data
+            Checked against recorded readings
           </Badge>
         </section>
       </div>
       <section className="card table-card">
         <CardHead
-          title="Every horizon, in full."
-          subtitle="National · all seasons · retrospective 2025 evaluation"
+          title="Errors by forecast time"
+          subtitle="All India · all seasons · checked against 2025 readings"
         >
           <a
             className="secondary-button"
@@ -739,14 +861,14 @@ export function ReportCardView({ registry }: { registry: Registry }) {
           <table>
             <thead>
               <tr>
-                <th>Forecast horizon</th>
-                <th>MAE</th>
-                <th>RMSE</th>
-                <th>Bias</th>
-                <th>Baseline MAE</th>
-                <th>Skill</th>
-                <th>Coverage</th>
-                <th>Test pairs</th>
+                <th>Hours ahead</th>
+                <th>Average error</th>
+                <th>Large-error score</th>
+                <th>Over/under estimate</th>
+                <th>Last-reading error</th>
+                <th>Error reduction</th>
+                <th>Readings in range</th>
+                <th>Estimates checked</th>
               </tr>
             </thead>
             <tbody>
@@ -769,30 +891,29 @@ export function ReportCardView({ registry }: { registry: Registry }) {
         </div>
       </section>
       <section className="card honest-card">
-        <SectionLabel>WHERE WE NEED TO DO BETTER</SectionLabel>
+        <SectionLabel>KNOWN PROBLEMS</SectionLabel>
         <div>
           <article>
             <span>01</span>
-            <h3>Peaks are harder.</h3>
+            <h3>High pollution is often missed</h3>
             <p>
-              RMSE is considerably larger than MAE. Large misses still matter,
-              especially during severe episodes.
+              Some errors are large, especially when pollution is very high.
             </p>
           </article>
           <article>
             <span>02</span>
-            <h3>A national average isn’t Delhi.</h3>
+            <h3>Delhi needs separate checks</h3>
             <p>
-              Festival-only, city-specific and high-pollution metrics remain to
-              be evaluated. These figures do not prove Diwali peak skill.
+              National results can hide local errors. The Diwali checks above
+              show poor results at high pollution levels.
             </p>
           </article>
           <article>
             <span>03</span>
-            <h3>Streets need their own test.</h3>
+            <h3>Areas without stations need checks</h3>
             <p>
-              The map uses inverse-distance interpolation. Station-held-out
-              spatial tests are needed before neighborhood accuracy claims.
+              Areas between stations are estimated from nearby readings. Their
+              accuracy has not been checked yet.
             </p>
           </article>
         </div>
@@ -871,11 +992,11 @@ export function AuthorityView({
           <Users size={26} />
         </div>
         <div>
-          <SectionLabel>INFORMATION BEFORE ACTION</SectionLabel>
-          <h2>A shared view of what needs attention.</h2>
+          <SectionLabel>CITY PLANNING</SectionLabel>
+          <h2>Areas with high pollution estimates</h2>
           <p>
-            Public, read-only monitoring priorities. Operational dispatch and
-            officer sign-in are not configured.
+            View and download a list of areas to check. This page does not send
+            teams.
           </p>
         </div>
         <Badge tone="green">Planning preview</Badge>
@@ -886,13 +1007,13 @@ export function AuthorityView({
             className={tab === "priority" ? "active" : ""}
             onClick={() => setTab("priority")}
           >
-            Monitoring priorities
+            Areas to check
           </button>
           <button
             className={tab === "planner" ? "active" : ""}
             onClick={() => setTab("planner")}
           >
-            Planning worksheet
+            Team shortlist
           </button>
         </div>
         <div>
@@ -912,12 +1033,11 @@ export function AuthorityView({
       {tab === "planner" && (
         <section className="card planner-card">
           <div>
-            <SectionLabel>ADVISORY, NOT A DISPATCH</SectionLabel>
-            <h2>Where would you start?</h2>
+            <SectionLabel>PLANNING ONLY</SectionLabel>
+            <h2>Choose how many areas to check</h2>
             <p>
-              Choose the number of monitoring teams to shortlist the highest
-              predicted station peaks. No population, intervention
-              effectiveness, or route optimization is assumed.
+              Choose the number of teams. The list ranks areas by estimated
+              pollution, without travel times or population data.
             </p>
           </div>
           <div>
@@ -944,16 +1064,16 @@ export function AuthorityView({
           title={
             tab === "planner"
               ? `${units} places to review first`
-              : "Places to keep an eye on."
+              : "Areas ranked by estimated pollution"
           }
-          subtitle="Ranked by the highest modelled PM2.5 in the first 48 forecast hours"
+          subtitle="Highest estimated PM2.5 over 48 hours"
         />
         <div className="table-scroll">
           <table>
             <thead>
               <tr>
                 <th>Priority</th>
-                <th>Monitored place</th>
+                <th>Area</th>
                 <th>Peak PM2.5</th>
                 <th>Peak time · IST</th>
                 <th>Hours &gt;90</th>
@@ -983,7 +1103,7 @@ export function AuthorityView({
                   </td>
                   <td>{s.hours} / 72h</td>
                   <td>
-                    <Badge>Station inputs</Badge>
+                    <Badge>Station data</Badge>
                   </td>
                   <td>
                     {s.peak.p50 > 250
@@ -997,9 +1117,8 @@ export function AuthorityView({
         </div>
       </section>
       <InfoNote>
-        These are monitored places, not administrative ward roll-ups. Forecast
-        ranks are not population-weighted benefits. This view supports awareness
-        and verification; it does not issue instructions or enforcement actions.
+        These are station areas, not ward rankings. Use the list to plan checks.
+        It does not send teams or estimate the benefits of their work.
       </InfoNote>
     </>
   );
@@ -1075,8 +1194,8 @@ export function CommunityView({
           <span className="large-icon">
             <MapPin size={26} />
           </span>
-          <SectionLabel>WHAT ARE YOU NOTICING?</SectionLabel>
-          <h2>You’re closer to the street.</h2>
+          <SectionLabel>REPORT AN OBSERVATION</SectionLabel>
+          <h2>Report smoke or dust</h2>
           <p>
             Share an observation for {station.name}. Only the H3 cell is
             submitted, never an exact location or photo.
@@ -1103,9 +1222,8 @@ export function CommunityView({
             ))}
           </div>
           <InfoNote>
-            This observation is for now, not the replay date. Citizen reports
-            remain separate from the archived forecast. Please report only what
-            you actually observe.
+            Report only what you see now. Your report stays separate from the
+            forecast.
           </InfoNote>
           <button
             className="primary-button full"
@@ -1127,8 +1245,7 @@ export function CommunityView({
             )}
           </button>
           <small className="form-fine">
-            One report per browser per hour. Browser identifiers do not prove
-            independent people. No emergency response is provided.
+            One report per browser per hour. This is not an emergency service.
           </small>
         </section>
         <section className="pledge-card">
@@ -1136,15 +1253,15 @@ export function CommunityView({
             <Leaf size={56} strokeWidth={1} />
             <span />
           </div>
-          <SectionLabel>CELEBRATE A LITTLE LIGHTER</SectionLabel>
+          <SectionLabel>CLEAN DIWALI PLEDGE</SectionLabel>
           <h2>
-            More light.
+            Celebrate with
             <br />
-            <em>Less smoke.</em>
+            <em>less smoke</em>
           </h2>
           <p>
-            I’ll choose celebrations with fewer emissions, share credible
-            air-quality information, and look out for my neighbors.
+            I will celebrate with less smoke, share reliable air-quality
+            information and help my neighbors.
           </p>
           <button
             className="primary-button full"
@@ -1173,7 +1290,7 @@ export function CommunityView({
       </div>
       <section className="card">
         <CardHead
-          title="What neighbors have shared."
+          title="Recent reports"
           subtitle={`${station.name} · last 24 hours · CITIZEN evidence`}
         />
         <div className="community-stats">
@@ -1184,16 +1301,17 @@ export function CommunityView({
                 <span>{k}</span>
                 <strong>{count}</strong>
                 <Badge tone={count >= 3 ? "green" : "neutral"}>
-                  {count >= 3 ? "3+ browser reports" : "Unconfirmed"}
+                  {count >= 3
+                    ? "3+ browser reports · not verified"
+                    : "Not verified"}
                 </Badge>
               </div>
             );
           })}
         </div>
         <div className="advice-foot">
-          Stored on this local server. Model influence is disabled. A production
-          database, stronger abuse controls and independent confirmation are
-          required before nowcasting integration.
+          Reports are saved on this server. They do not change the forecast and
+          have not been independently verified.
         </div>
       </section>
     </>
@@ -1203,38 +1321,38 @@ export function AboutView({ registry }: { registry: Registry }) {
   return (
     <>
       <section className="about-hero">
-        <SectionLabel>THE SHWĀSA FIELD NOTES · MODEL 01</SectionLabel>
+        <SectionLabel>HOW IT WORKS</SectionLabel>
         <h2>
-          A forecast you can
+          How we make
           <br />
-          <em>look inside.</em>
+          <em>estimates</em>
         </h2>
         <p>
-          We believe a useful forecast should show its work. Here is what we
-          trained, what the map means, and where the evidence ends.
+          We use past pollution readings to estimate air quality. Here are the
+          methods, data sources and limits.
         </p>
       </section>
       <div className="method-flow">
         {[
           {
             n: "01",
-            title: "Read the air",
-            text: "Observed CPCB PM2.5, weather, delayed fire activity and traffic proxies.",
+            title: "Collect data",
+            text: "Recorded pollution, weather, fire reports and traffic estimates.",
           },
           {
             n: "02",
-            title: "Learn the pattern",
-            text: "Four ridge models, fitted on historical observations through 2023.",
+            title: "Build the model",
+            text: "Use data through 2023 to learn how pollution changes.",
           },
           {
             n: "03",
-            title: "Leave room for error",
-            text: "2024 residuals set nominal 80% prediction intervals by horizon.",
+            title: "Estimate a range",
+            text: "Use errors from 2024 to set a range around each prediction.",
           },
           {
             n: "04",
-            title: "Test, then share",
-            text: "Untouched 2025 predictions compared with measurements and persistence.",
+            title: "Check the results",
+            text: "Compare estimates with 2025 readings and a simple last-reading estimate.",
           },
         ].map((s) => (
           <article key={s.n}>
@@ -1247,34 +1365,29 @@ export function AboutView({ registry }: { registry: Registry }) {
       </div>
       <div className="method-grid">
         <section className="card prose">
-          <SectionLabel>WHAT’S UNDER THE HOOD</SectionLabel>
+          <SectionLabel>THE FIRST MODEL</SectionLabel>
           <h2>
-            Simple enough to explain.
+            How the model
             <br />
-            Useful enough to test.
+            uses data
           </h2>
           <p>
-            The custom model is regularized linear regression. Each feature
-            contributes its value multiplied by a learned weight. The weights
-            minimize squared prediction error plus a penalty on large
-            coefficients.
+            The model learns how much each input affects the estimate. It
+            combines those values to predict PM2.5.
           </p>
-          <div className="formula">PM2.5 = baseline + Σ (feature × weight)</div>
+
           <p>
-            Four models cover 1–6, 7–24, 25–48 and 49–72 hours. Features include
-            recent PM2.5, origin weather, lagged fire totals, a traffic proxy,
-            location, time, Diwali proximity and horizon. Missing-source
-            indicators distinguish unavailable values from measured zeros.
+            Four models cover up to 72 hours. They use recent pollution,
+            weather, fire reports, traffic estimates, location and time. Missing
+            data is marked as missing, not zero.
           </p>
           <p>
-            The center is a point prediction, not a trained conditional median.
-            Bands use split-conformal absolute residuals; temporal dependence
-            and changing conditions mean nominal coverage is not guaranteed.
+            The line shows the estimate. The shaded range is based on earlier
+            errors. Future readings can fall outside it.
           </p>
           <p>
-            The map interpolates the nearest three station predictions onto real
-            H3 resolution-8 cells. It uses inverse squared distance, not
-            validated kriging or a physical smoke transport simulation.
+            Each map area uses the three nearest stations. Closer stations have
+            more influence. We have not yet checked accuracy between stations.
           </p>
           <a
             href="/api/v1/report-card"
@@ -1282,13 +1395,13 @@ export function AboutView({ registry }: { registry: Registry }) {
             rel="noreferrer"
             className="text-link"
           >
-            Read the evaluation artifact
+            View the results data
             <ArrowUpRight size={14} />
           </a>
         </section>
         <section className="card prose model-details">
-          <SectionLabel>THE MODEL CARD</SectionLabel>
-          <h2>Candidate, with context.</h2>
+          <SectionLabel>MODEL DETAILS</SectionLabel>
+          <h2>Model details</h2>
           <dl>
             <div>
               <dt>Version</dt>
@@ -1299,64 +1412,60 @@ export function AboutView({ registry }: { registry: Registry }) {
               <dd>{dateLabel(registry.model.trainedAt, true)}</dd>
             </div>
             <div>
-              <dt>Training pairs</dt>
+              <dt>Training examples</dt>
               <dd>{registry.model.trainingPairs.toLocaleString()}</dd>
             </div>
             <div>
-              <dt>Test pairs</dt>
+              <dt>Estimates checked</dt>
               <dd>{registry.model.testPairs.toLocaleString()}</dd>
             </div>
             <div>
-              <dt>Primary target</dt>
+              <dt>What it predicts</dt>
               <dd>PM2.5 · µg/m³</dd>
             </div>
             <div>
-              <dt>Scope</dt>
-              <dd>Station-level · nationwide</dd>
+              <dt>Area covered</dt>
+              <dd>Monitoring stations across India</dd>
             </div>
             <div>
-              <dt>Promotion</dt>
+              <dt>Status</dt>
               <dd>
-                <Badge tone="orange">Experimental candidate</Badge>
+                <Badge tone="orange">Still being checked</Badge>
               </dd>
             </div>
           </dl>
           <InfoNote>
-            2025 is now an observed test result. Future tuning needs a fresh
-            evaluation protocol. Replay years through 2023 are in-sample; 2024
-            is calibration.
+            The model used data through 2023. Ranges were checked in 2024 and
+            results in 2025. New versions need new checks.
           </InfoNote>
         </section>
       </div>
       <section className="card sources-card">
-        <CardHead
-          title="The people and data behind the picture."
-          subtitle="Four local datasets, with their provenance intact."
-        />
+        <CardHead title="Data sources" subtitle="What each source provides." />
         <div className="source-grid">
           {[
             {
               name: "CPCB",
               type: "MEASURED",
-              text: "Official monitoring-station PM2.5 observations. Hourly averages require at least three valid quarter-hour readings.",
+              text: "Recorded PM2.5 from official stations. Each hourly average needs at least three valid readings.",
               url: "https://app.cpcbccr.com/ccr",
             },
             {
               name: "Open-Meteo / ERA5",
               type: "REANALYSIS",
-              text: "Origin-hour temperature, humidity and wind. Historical reanalysis is not an archived operational weather forecast.",
+              text: "Past temperature, humidity and wind. These are not forecasts of future weather.",
               url: "https://open-meteo.com/en/docs/historical-weather-api",
             },
             {
               name: "NASA FIRMS",
               type: "SATELLITE-DERIVED",
-              text: "Delayed daily fire radiative power, summed regionally. It is a proxy for fire activity, not local smoke concentration.",
+              text: "Satellite fire reports. These show fire activity, not the amount of smoke in an area.",
               url: "https://firms.modaps.eosdis.nasa.gov/",
             },
             {
               name: "Historical traffic",
               type: "GENERATED PROXY",
-              text: "Empirically calibrated corridor patterns. These are not measured historical traffic flows or emissions.",
+              text: "Generated traffic estimates, not recorded vehicle counts or emissions.",
               url: null,
             },
           ].map((s) => (
@@ -1377,14 +1486,13 @@ export function AboutView({ registry }: { registry: Registry }) {
       </section>
       <div className="method-grid">
         <section className="card prose">
-          <SectionLabel>WHAT THE NUMBERS MEAN</SectionLabel>
-          <h2>Concentration comes first.</h2>
+          <SectionLabel>AQI AND PM2.5</SectionLabel>
+          <h2>AQI is not the same as PM2.5</h2>
           <p>
-            The main number is hourly modelled PM2.5. The category uses a
-            trailing 24-hour PM2.5 mean, combining available observations and
-            predictions. The PM2.5 sub-index uses the Indian AQI concentration
-            breakpoints. It is not a complete official AQI, which requires
-            additional pollutant and availability rules.
+            The main card shows an AQI estimate based only on PM2.5 over 24
+            hours. Hourly PM2.5 is shown separately in µg/m³. Official AQI also
+            uses other pollutants, so our estimate is not an official AQI
+            reading.
           </p>
           <a
             className="text-link"
@@ -1397,13 +1505,11 @@ export function AboutView({ registry }: { registry: Registry }) {
           </a>
         </section>
         <section className="card prose">
-          <SectionLabel>HEALTH, WITHOUT OVERCLAIMING</SectionLabel>
-          <h2>Lower exposure, with care.</h2>
+          <SectionLabel>HEALTH ADVICE</SectionLabel>
+          <h2>Lower pollution does not mean safe air</h2>
           <p>
-            Our lowest-window suggestions compare modelled concentrations. They
-            do not certify safe air. General advice follows WHO guidance on
-            choosing lower-exposure times and places. Individual vulnerability
-            and medical advice matter.
+            Suggested times have lower estimated pollution, not guaranteed safe
+            air. Follow official advice and your doctor’s guidance.
           </p>
           <a
             className="text-link"
@@ -1417,10 +1523,9 @@ export function AboutView({ registry }: { registry: Registry }) {
         </section>
       </div>
       <InfoNote>
-        Not a medical device or a replacement for CPCB advisories. Neighborhood
-        accuracy, causal source shares, and intervention benefits have not yet
-        been validated. Offline forecasts are archived estimates, never a live
-        measurement.
+        This website does not replace official air-quality or medical advice.
+        Local accuracy and the effects of pollution controls still need
+        checking.
       </InfoNote>
     </>
   );
@@ -1442,44 +1547,42 @@ export function StatusView({
           <Database size={27} />
         </span>
         <div>
-          <SectionLabel>THE PIPELINE, IN PLAIN SIGHT</SectionLabel>
+          <SectionLabel>DATA STATUS</SectionLabel>
           <h2>
             {snapshot.kind === "outlook"
-              ? "Outlook ready. Live feeds unconfigured."
-              : "Archive healthy. Live feeds unconfigured."}
+              ? "2026 estimates are ready. Live data is not connected."
+              : "Past data is available. Live data is not connected."}
           </h2>
-          <p>
-            All charts use bundled snapshots. No current observation is implied.
-          </p>
+          <p>Charts use saved data, not live readings.</p>
         </div>
-        <Badge tone="orange">Archive mode</Badge>
+        <Badge tone="orange">Saved data</Badge>
       </div>
       <div className="metric-grid">
         <Metric
-          label="MONITORED PLACES"
+          label="AREAS WITH STATIONS"
           number={String(snapshot.stations.length)}
-          note="Valid PM history for this archive"
+          note="Areas with usable past pollution readings"
         />
         <Metric
-          label="WEATHER COVERAGE"
+          label="WEATHER DATA"
           number={`${Math.round((weather / snapshot.stations.length) * 100)}%`}
-          note={`${weather} places with origin weather`}
+          note={`${weather} areas with past weather data`}
         />
         <Metric
-          label="TRAFFIC PROXY COVERAGE"
+          label="TRAFFIC ESTIMATES"
           number={`${Math.round((traffic / snapshot.stations.length) * 100)}%`}
-          note={`${traffic} matched historical corridors`}
+          note={`${traffic} areas with traffic estimates`}
         />
         <Metric
-          label="FIRE FEATURE COVERAGE"
+          label="FIRE DATA"
           number={`${Math.round((fire / snapshot.stations.length) * 100)}%`}
-          note="Delayed regional activity proxy"
+          note="Earlier satellite fire reports"
         />
       </div>
       <section className="card table-card">
         <CardHead
-          title="Source by source."
-          subtitle={`Selected snapshot: ${snapshot.id} · generated ${fullDate(snapshot.generatedAt)}`}
+          title="Available data"
+          subtitle={`Data: ${snapshot.id} · saved ${fullDate(snapshot.generatedAt)}`}
         />
         <div className="table-scroll">
           <table>
@@ -1488,7 +1591,7 @@ export function StatusView({
                 <th>Source</th>
                 <th>Used for</th>
                 <th>Mode</th>
-                <th>Coverage</th>
+                <th>Readings in range</th>
                 <th>Live status</th>
               </tr>
             </thead>
@@ -1496,25 +1599,25 @@ export function StatusView({
               {[
                 [
                   "CPCB station files",
-                  "PM2.5 targets & lag features",
+                  "Past pollution readings",
                   "MEASURED",
                   `${snapshot.stations.length} places`,
                 ],
                 [
                   "Open-Meteo archive",
-                  "Origin weather",
+                  "Past weather",
                   "REANALYSIS",
                   `${weather} places`,
                 ],
                 [
                   "NASA FIRMS",
-                  "Delayed fire-activity proxy",
+                  "Earlier fire reports",
                   "SATELLITE-DERIVED",
                   `${fire} places`,
                 ],
                 [
                   "Historical traffic",
-                  "Corridor traffic input",
+                  "Traffic estimates",
                   "GENERATED PROXY",
                   `${traffic} places`,
                 ],
@@ -1531,7 +1634,7 @@ export function StatusView({
                   <td>
                     <span className="status-label">
                       <i />
-                      Not configured
+                      Not connected
                     </span>
                   </td>
                 </tr>
@@ -1542,17 +1645,16 @@ export function StatusView({
       </section>
       <div className="method-grid">
         <section className="card prose">
-          <SectionLabel>MODEL OPERATIONS</SectionLabel>
-          <h2>A candidate, never silently promoted.</h2>
+          <SectionLabel>MODEL STATUS</SectionLabel>
+          <h2>The model is still being checked</h2>
           <p>
-            Current version: {registry.model.version}. Training and held-out
-            evaluation completed successfully. Promotion, live drift detection
-            and automatic rollback remain unconfigured.
+            Version: {registry.model.version}. It has been checked against past
+            readings but still misses high pollution levels. Live error checks
+            and automatic model changes are not available yet.
           </p>
           <p>
-            Missing weather uses defaults plus indicators. Missing traffic and
-            fire activity are marked unknown. The server retains the selected
-            archive when a new replay fails to load.
+            Missing data is marked clearly. If a page cannot load new data, the
+            last selected data stays visible.
           </p>
           <a
             className="text-link"
@@ -1560,24 +1662,21 @@ export function StatusView({
             target="_blank"
             rel="noreferrer"
           >
-            Inspect status JSON
+            View data status
             <ArrowUpRight size={14} />
           </a>
         </section>
         <section className="card prose">
-          <SectionLabel>LOCAL-FIRST SERVICES</SectionLabel>
-          <h2>Know where things live.</h2>
+          <SectionLabel>SAVED DATA</SectionLabel>
+          <h2>Where your settings are saved</h2>
           <p>
-            Reports and pledges are persisted in a local single-instance JSON
-            store. Alert preferences and saved scenarios live on this browser.
-            Remote notifications, officer authentication and cloud persistence
-            require configuration.
+            Reports and pledges are saved on this server. Settings and saved
+            examples stay in your browser. Email alerts and officer accounts are
+            not available yet.
           </p>
           <p>
-            Offline navigation caching is disabled. The legacy service worker is
-            retired so failed routes cannot be replaced by the home page. Map
-            tiles still need a network; an H3 schematic remains available when
-            the base map cannot load.
+            Pages need an internet connection. If map tiles cannot load, a
+            simple map is shown.
           </p>
           <a
             className="text-link"
@@ -1585,7 +1684,7 @@ export function StatusView({
             target="_blank"
             rel="noreferrer"
           >
-            API endpoint index
+            View available data links
             <ArrowUpRight size={14} />
           </a>
         </section>
@@ -1595,7 +1694,6 @@ export function StatusView({
 }
 
 export function OutlookEvidence({
-  snapshot,
   station,
   hour,
 }: {
@@ -1607,61 +1705,62 @@ export function OutlookEvidence({
   return (
     <>
       <section className="about-hero">
-        <SectionLabel>2026 · AN OUTLOOK WITH A MEMORY</SectionLabel>
+        <SectionLabel>2026 ESTIMATE METHOD</SectionLabel>
         <h2>
-          The past has a pattern.
+          How we estimate
           <br />
-          <em>The future has a range.</em>
+          <em>Diwali 2026</em>
         </h2>
         <p>
-          For each station and festival-relative hour, we take the median of at
-          least three previous Diwali seasons. No future observations are
-          invented.
+          For each hour, we compare the same station’s readings from at least
+          three past Diwalis. The middle reading is the estimate.
         </p>
       </section>
       <div className="metric-grid">
         <Metric
-          label="HISTORICAL MEDIAN"
+          label="ESTIMATED PM2.5"
           number={Math.round(point.p50).toString()}
           unit="µg/m³"
           note={`${dateLabel(point.time)}, ${hourLabel(point.time)} IST`}
         />
         <Metric
-          label="HISTORICAL P10–P90"
+          label="RANGE IN PAST YEARS"
           number={`${Math.round(point.p10)}–${Math.round(point.p90)}`}
-          note="Empirical spread, not calibrated confidence"
+          note="Future values may be outside this range."
         />
         <Metric
-          label="SOURCE FESTIVALS"
+          label="PAST DIWALIS USED"
           number={String(station.outlook?.sourceYears.length ?? 0)}
           note={station.outlook?.sourceYears.join(", ") ?? ""}
         />
         <Metric
-          label="MINIMUM HOURLY ANALOGS"
+          label="MINIMUM YEARS PER HOUR"
           number={String(station.outlook?.minimumHourlySamples ?? 0)}
-          note="Same station, same festival-relative hour"
+          note="Same station and time relative to Diwali"
         />
       </div>
       <section className="card prose">
-        <SectionLabel>WHAT CHANGES — AND WHAT DOESN’T</SectionLabel>
-        <h2>A seasonal view. Not future measurements.</h2>
-        <p>{snapshot.outlook?.limitations}</p>
+        <SectionLabel>LIMITS</SectionLabel>
+        <h2>These are estimates, not future readings</h2>
         <p>
-          The rolling-day PM2.5 index uses the analog median curve, including
-          the preceding 24 hours. Traffic and weather perturbations are not
-          applied to these empirical curves. The ridge model’s causal-looking
-          contribution bars are intentionally unavailable here.
+          The 2026 estimate uses past Diwali readings only. It does not include
+          future weather or pollution measurements.
         </p>
         <p>
-          Station evidence years: {station.outlook?.sourceYears.join(", ")}.
-          Latest actual reading was{" "}
+          AQI uses 24 hours of estimated PM2.5. The 2026 method uses past
+          readings only. It cannot show the effects of changes to traffic or
+          wind.
+        </p>
+        <p>
+          Years used: {station.outlook?.sourceYears.join(", ")}. Latest recorded
+          reading:{" "}
           {station.outlook
             ? fullDate(station.outlook.latestObservedAt)
             : "unavailable"}
-          ; it is not treated as the Diwali-night observation.
+          ; this is not a Diwali-night reading.
         </p>
         <a className="text-link" href="/report-card">
-          Inspect the rolling backtest <ArrowUpRight size={14} />
+          See checks against past years <ArrowUpRight size={14} />
         </a>
       </section>
     </>
